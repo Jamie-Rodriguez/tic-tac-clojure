@@ -27,4 +27,4 @@ clj -Mtest
 To further develop an understanding of a typical Clojure project as well as property testing:
 - Add spec for the namespace `engine`.
 - Get around to the to-do's in `src/engine.clj`
-- Add property testing, *especially* to the random move generation functions `random-valid-move`
+- Add property testing, *especially* to the random move generation function `random-valid-move`
