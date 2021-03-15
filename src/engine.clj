@@ -20,8 +20,6 @@
 (def new-game [2r0 2r0])
 
 
-(defn random-move [] (rand-int board-size))
-
 ; bitwise-and with the boundary of the board so that we don't have to deal with negative number arithmetic
 (defn get-valid-moves [board]
     (bit-and board-area ; to ensure moves aren't placed out of bounds
