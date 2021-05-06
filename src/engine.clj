@@ -89,18 +89,24 @@
 (defn play-game [move-generators
                  initial-board]
     (loop [board   initial-board
-           turn    0
            history []]
-        (let [valid-moves-bitmask (get-valid-moves board)
+        ; Should really move num-players binding outside of this loop
+        ; to stop strictly unnecessary recalculations. But creating further nesting
+        ; due to another 'let' form seems excessive just for this.
+        (let [num-players         (count move-generators)
+              current-player      (rem (count history) ; turn-number
+                                       num-players)
+              valid-moves-bitmask (get-valid-moves board)
               valid-moves-list    (separate-bitboard valid-moves-bitmask)
-              move                ((nth move-generators turn) valid-moves-list)
-              new-board           (apply-move board turn move)
+              move                ((nth move-generators current-player) valid-moves-list)
+              new-board           (apply-move board current-player move)
               new-history         (conj history new-board)]
+            (println current-player)
             (print-board-bitmap new-board)
             (if (or (is-full new-board)
-                    (check-for-win new-board turn))
+                    (check-for-win new-board current-player))
                 new-history
-                (recur new-board (bit-xor turn 0x01) new-history)))))
+                (recur new-board new-history)))))
 
 
 (defn -main []
