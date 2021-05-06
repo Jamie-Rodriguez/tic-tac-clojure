@@ -68,11 +68,11 @@
                   (reduce bit-or board))))
 
 ; TO-DO: Return an int representing if a player wins e.g.:
-; output | meaning
-; -------+-----------------------
-;   -1   | neither player has won
-;    0   | player 1 wins
-;    1   | player 2 wins
+;  output |        meaning
+; --------+------------------------
+;    -1   | neither player has won
+;     0   | player 1 wins
+;     1   | player 2 wins
 ;  
 ; TO-DO: Change signature to board -> int
 ; (checking win should have no dependence on player)
@@ -88,25 +88,28 @@
 
 (defn play-game [move-generators
                  initial-board]
-    (loop [board   initial-board
-           history []]
+    (loop [history [initial-board]]
         ; Should really move num-players binding outside of this loop
         ; to stop strictly unnecessary recalculations. But creating further nesting
         ; due to another 'let' form seems excessive just for this.
         (let [num-players         (count move-generators)
-              current-player      (rem (count history) ; turn-number
-                                       num-players)
-              valid-moves-bitmask (get-valid-moves board)
+              turn-number         (dec (count history))
+              current-player      (rem turn-number num-players)
+              current-board       (nth history turn-number)
+              valid-moves-bitmask (get-valid-moves current-board)
               valid-moves-list    (separate-bitboard valid-moves-bitmask)
               move                ((nth move-generators current-player) valid-moves-list)
-              new-board           (apply-move board current-player move)
+              new-board           (apply-move current-board current-player move)
               new-history         (conj history new-board)]
-            (println current-player)
+            (println (format "Turn #%d" turn-number))
+            (println (format "Current player: %d" current-player))
+            (println "New board:")
             (print-board-bitmap new-board)
+            (println)
             (if (or (is-full new-board)
                     (check-for-win new-board current-player))
                 new-history
-                (recur new-board new-history)))))
+                (recur new-history)))))
 
 
 (defn -main []
