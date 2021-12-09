@@ -4,9 +4,9 @@
 
 
 ; bitwise-and with the boundary of the board so that we don't have to deal with negative number arithmetic
-(defn get-valid-moves [board]
+(defn get-valid-moves [bitboards]
     (bit-and board-area ; to ensure moves aren't placed out of bounds
-             (bit-not (reduce bit-or board))))
+             (bit-not (reduce bit-or bitboards))))
 
 ; Uses a modified version of Brian Kernighan’s Algorithm.
 ; Instead of just counting the number of set bits, writes the set bits into a list.
@@ -30,18 +30,18 @@
 
 ; apply-move is idempotent; a move on an already-occupied square or out of bounds
 ; should return the same state
-(defn apply-move [board player move]
+(defn apply-move [bitboards player move]
     ; Check we aren't placing on an already occupied square
-    (if (> (bit-and (get-valid-moves board) move) 0)
-        (assoc board
+    (if (> (bit-and (get-valid-moves bitboards) move) 0)
+        (assoc bitboards
                player
                (bit-and board-area ; to ensure moves aren't placed out of bounds
-                        (bit-or (nth board player) move)))
-        board))
+                        (bit-or (nth bitboards player) move)))
+        bitboards))
 
-(defn is-full [board]
+(defn is-full [bitboards]
     (= 0 (bit-xor board-area
-                  (reduce bit-or board))))
+                  (reduce bit-or bitboards))))
 
 ; TO-DO: Return an int representing if a player wins e.g.:
 ;  output |        meaning
@@ -52,11 +52,11 @@
 ;
 ; TO-DO: Change signature to board -> int
 ; (checking win should have no dependence on player)
-(defn check-for-win [board player]
+(defn check-for-win [bitboards player]
     (loop [i (dec (count three-in-a-row))]
         (let [win-direction (nth three-in-a-row i)
               is-win        (= win-direction
-                               (bit-and (nth board player) win-direction))]
+                               (bit-and (nth bitboards player) win-direction))]
             ; Checking is-win allows us to escape the loop early if a win is found
             (if (or is-win (= i 0))
                 is-win
@@ -72,21 +72,21 @@
         (let [num-players         (count move-generators)
               turn-number         (dec (count history))
               current-player      (rem turn-number num-players)
-              current-board       (nth history turn-number)
-              valid-moves-bitmask (get-valid-moves current-board)
+              current-bitboards   (nth history turn-number)
+              valid-moves-bitmask (get-valid-moves current-bitboards)
               valid-moves-list    (separate-bitboard valid-moves-bitmask)
               move                ((nth move-generators current-player) valid-moves-list)
-              new-board           (apply-move current-board current-player move)
-              new-history         (conj history new-board)]
+              new-bitboards       (apply-move current-bitboards current-player move)
+              new-history         (conj history new-bitboards)]
             (println (format "Turn #%d" turn-number))
             (println (format "Current player: %d" current-player))
             (println "New board:")
-            (print-game-state new-board)
+            (print-game-state new-bitboards)
             (newline)
-            (print-board board-size width new-board)
+            (print-board board-size width new-bitboards)
             (newline)
-            (if (or (is-full new-board)
-                    (check-for-win new-board current-player))
+            (if (or (is-full new-bitboards)
+                    (check-for-win new-bitboards current-player))
                 new-history
                 (recur new-history)))))
 
