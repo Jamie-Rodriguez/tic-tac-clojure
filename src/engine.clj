@@ -1,23 +1,6 @@
-(ns engine)
-
-
-(def board-size 9)
-
-(def board-area
-    (dec (bit-shift-left 1 board-size)))
-
-; TO-DO: find a way to generate this dynamically for arbitrary board dimensions
-(def three-in-a-row [
-    2r001001001
-    2r010010010
-    2r100100100
-    2r000000111
-    2r000111000
-    2r111000000
-    2r100010001
-    2r001010100])
-
-(def new-game [2r0 2r0])
+(ns engine
+    (:use constants)
+    (:use print))
 
 
 ; bitwise-and with the boundary of the board so that we don't have to deal with negative number arithmetic
@@ -56,13 +39,6 @@
                         (bit-or (nth board player) move)))
         board))
 
-; TO-DO: Print an ASCII-art board with pieces instead of the raw bitboards
-(defn print-board-bitmap [board]
-    (doseq [[i player] (map-indexed vector board)]
-        (println (format "player %d: %9s"
-                         i
-                         (Integer/toBinaryString player)))))
-
 (defn is-full [board]
     (= 0 (bit-xor board-area
                   (reduce bit-or board))))
@@ -73,7 +49,7 @@
 ;    -1   | neither player has won
 ;     0   | player 1 wins
 ;     1   | player 2 wins
-;  
+;
 ; TO-DO: Change signature to board -> int
 ; (checking win should have no dependence on player)
 (defn check-for-win [board player]
@@ -85,6 +61,7 @@
             (if (or is-win (= i 0))
                 is-win
                 (recur (dec i))))))
+
 
 (defn play-game [move-generators
                  initial-board]
@@ -104,8 +81,10 @@
             (println (format "Turn #%d" turn-number))
             (println (format "Current player: %d" current-player))
             (println "New board:")
-            (print-board-bitmap new-board)
-            (println)
+            (print-game-state new-board)
+            (newline)
+            (print-board board-size width new-board)
+            (newline)
             (if (or (is-full new-board)
                     (check-for-win new-board current-player))
                 new-history

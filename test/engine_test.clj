@@ -16,9 +16,9 @@
 
 (deftest apply-move-test
     (is (= [0x01, 0]
-           (apply-move new-game 0 0x01)))
+           (apply-move [2r0 2r0] 0 0x01)))
     (is (= [0, 0x01]
-           (apply-move new-game 1 0x01))))
+           (apply-move [2r0 2r0] 1 0x01))))
 
 ; Should we reject the entire move, or only the out of bounds moves in the bitmask?
 ; Only rejecting the out of bounds moves for now
