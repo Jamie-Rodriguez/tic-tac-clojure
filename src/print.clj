@@ -3,6 +3,14 @@
     (:use constants))
 
 
+(defn print-game-state [bitboards]
+    (doseq [[i player-bitboard] (map-indexed vector bitboards)]
+        (println (str (format "player %d: " i)
+                      (cl-format nil
+                                 (str "~" board-size ",'0B")
+                                 player-bitboard)))))
+
+
 ; Returns the player that occupies the square at index
 ; If no player occupies the square at index, return -1
 ; If a collision is present i.e. if for some reason multiple player's bitboards
@@ -35,12 +43,6 @@
                                  (square-owner i board))
                             "-"))))))
 
-(defn print-game-state [board]
-    (doseq [[i player-bitboard] (map-indexed vector board)]
-        (println (str (format "player %d: " i)
-                      (cl-format nil
-                                 (str "~" board-size ",'0B")
-                                 player-bitboard)))))
 
 ; Used to calculate how much padding is required on numbers
 ; when printing the board to the console.
@@ -83,12 +85,12 @@
 ; ---+---+---
 ;  0 | 1 | 2
 ; Warning: I haven't tested this for other board dimensions
-(defn print-board [board-size width board]
+(defn print-board [board-size width bitboards]
     (let [n-rows       (quot (dec board-size)
                              width)
           board-string (game-state-to-string board-size
                                              player-piece-symbols
-                                             board)]
+                                             bitboards)]
         (doseq [row (reverse (range (inc n-rows)))]
             (doseq [i (range (* row width) (+ (* row width) width))]
                 (let [current-piece (nth board-string i)]
