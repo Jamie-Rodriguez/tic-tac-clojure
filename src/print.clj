@@ -15,15 +15,15 @@
 ; If no player occupies the square at index, return -1
 ; If a collision is present i.e. if for some reason multiple player's bitboards
 ; occupy the same square, use the first player found
-(defn square-owner [index board]
+(defn square-owner [index bitboards]
     (loop [i      0
            owner -1]
         (if (or (not= owner -1)
-                (>= i (count board)))
+                (>= i (count bitboards)))
             owner
             (recur (inc i)
                    (if (pos? (bit-and (bit-shift-left 1 index)
-                                      (nth board i)))
+                                      (nth bitboards i)))
                        i
                        owner)))))
 
@@ -31,16 +31,16 @@
 ; to a string of characters representing the board
 ; e.g. (game-state-to-string 9 ["O" "X"] [2r110001010 2r001010101])
 ; returns "XOXOX-XOO" (read left to right)
-(defn game-state-to-string [board-size player-piece-symbols board]
+(defn game-state-to-string [board-size player-piece-symbols bitboards]
     (loop [i      0
            result ""]
         (if (>= i board-size)
             result
             (recur (inc i)
                    (str result
-                        (if (>= (square-owner i board) 0)
+                        (if (>= (square-owner i bitboards) 0)
                             (nth player-piece-symbols
-                                 (square-owner i board))
+                                 (square-owner i bitboards))
                             "-"))))))
 
 
