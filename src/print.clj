@@ -1,5 +1,5 @@
 (ns print
-    (:use clojure.pprint)
+    (:use [clojure.pprint :only (cl-format)])
     (:use constants))
 
 

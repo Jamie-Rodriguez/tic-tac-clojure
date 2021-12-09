@@ -1,4 +1,6 @@
 (ns engine
+    (:use [clojure.string :only (join)])
+    (:use [clojure.pprint :only (cl-format)])
     (:use constants)
     (:use print))
 
@@ -92,7 +94,18 @@
 
 
 (defn -main []
-    (println
-        (play-game [random-valid-move
-                    random-valid-move]
-                   new-game)))
+    (let [bitboards-to-string (fn [bitboards]
+                                  (str "["
+                                       (join " "
+                                           (map (fn [bitboard]
+                                                    (cl-format nil
+                                                               (str "~" board-size ",'0B")
+                                                               bitboard))
+                                           bitboards))
+                                       "]"))
+          history-to-string   (fn [history]
+                                  (map bitboards-to-string history))
+          history             (play-game [random-valid-move random-valid-move]
+                                         new-game)
+          history-strings     (history-to-string history)]
+        (run! println history-strings)))
