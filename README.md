@@ -22,6 +22,21 @@ To run the Cognitect Labs test runner using the `test` alias:
 clj -Mtest
 ```
 
+## Building a Standalone `.jar` File
+
+Build a standalone *uberjar* with the following commands:
+
+```shell
+clj -T:build clean
+clj -T:build uber
+```
+
+From there you can execute the compiled `.jar` with
+
+```shell
+java -jar target/tic-tac-clojure-1.0.11-standalone.jar
+```
+
 ## To-Do
 
 To further develop an understanding of a typical Clojure project as well as property testing:

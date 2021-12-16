@@ -1,4 +1,5 @@
 (ns print
+    (:gen-class)
     (:use [clojure.pprint :only (cl-format)])
     (:use constants))
 

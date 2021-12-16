@@ -4,4 +4,6 @@
                   :extra-deps {com.cognitect/test-runner {
                     :git/url "https://github.com/cognitect-labs/test-runner.git"
                     :sha "209b64504cb3bd3b99ecfec7937b358a879f55c1"}}
-                  :main-opts ["-m" "cognitect.test-runner"]}}}
+                  :main-opts ["-m" "cognitect.test-runner"]}
+           :build {:deps {io.github.clojure/tools.build {:tag "v0.7.2" :sha "0361dde"}}
+                   :ns-default build}}}

@@ -1,4 +1,5 @@
 (ns engine
+    (:gen-class)
     (:use [clojure.string :only (join)])
     (:use [clojure.pprint :only (cl-format)])
     (:use constants)
@@ -93,7 +94,7 @@
                 (recur new-history)))))
 
 
-(defn -main []
+(defn -main [& args]
     (let [bitboards-to-string (fn [bitboards]
                                   (str "["
                                        (join " "
