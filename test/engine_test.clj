@@ -2,17 +2,24 @@
     (:use clojure.test)
     (:use engine))
 
-
-(deftest get-valid-moves-test
-    (is (= 2r111111100
-           (get-valid-moves [0x01 0x02]))))
-
 (deftest separate-bitboard-test
-    (is (= [2r00000010
-            2r00010000
-            2r00100000
-            2r10000000]
-           (separate-bitboard 2r10110010))))
+    (is (= [2r000000010
+            2r000010000
+            2r000100000
+            2r010000000]
+           (separate-bitboard 2r010110010))))
+
+(deftest get-valid-moves-bitmask-test
+    (is (= 0
+           (get-valid-moves-bitmask [2r000011111 2r111100000])))
+    (is (= 2r000000011
+           (get-valid-moves-bitmask [2r000111100 2r111000000]))))
+
+(deftest get-valid-moves-list-test
+    (is (= nil
+           (get-valid-moves-list [2r000011111 2r111100000])))
+    (is (= [0x01 0x02]
+           (get-valid-moves-list [2r000111100 2r111000000]))))
 
 (deftest apply-move-test
     (is (= [0x01 0]

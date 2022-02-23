@@ -6,11 +6,6 @@
     (:use print))
 
 
-; bitwise-and with the boundary of the board so that we don't have to deal with negative number arithmetic
-(defn get-valid-moves [bitboards]
-    (bit-and board-area ; to ensure moves aren't placed out of bounds
-             (bit-not (reduce bit-or bitboards))))
-
 ; Uses a modified version of Brian Kernighan’s Algorithm.
 ; Instead of just counting the number of set bits, writes the set bits into a list.
 ; Uses the fact that n & (n-1) removes the *rightmost* SET bit from n
@@ -19,14 +14,24 @@
 ;     input: 1101
 ;     output: [0001, 0100, 1000]
 (defn separate-bitboard [bitboard]
-     (loop [n bitboard
-            list-of-bitboards []]
-         (let [remove-rightmost-setbit (bit-and n (dec n))]
-             (if (= n 0)
-                 list-of-bitboards
-                 (recur remove-rightmost-setbit
-                        (conj list-of-bitboards
-                              (bit-xor n remove-rightmost-setbit)))))))
+    (loop [n bitboard
+           list-of-bitboards []]
+        (let [remove-rightmost-setbit (bit-and n (dec n))]
+            (if (= n 0)
+                list-of-bitboards
+                (recur remove-rightmost-setbit
+                       (conj list-of-bitboards
+                             (bit-xor n remove-rightmost-setbit)))))))
+
+; bitwise-and with the boundary of the board so that we don't have to deal with negative number arithmetic
+(defn get-valid-moves-bitmask [bitboards]
+    (bit-and board-area ; to ensure moves aren't placed out of bounds
+             (bit-not (reduce bit-or bitboards))))
+
+(defn get-valid-moves-list [bitboards]
+    (let [valid-moves-bitmask (get-valid-moves-bitmask bitboards)]
+        (when (pos-int? valid-moves-bitmask)
+              (separate-bitboard valid-moves-bitmask))))
 
 (defn random-valid-move [valid-moves]
     (rand-nth valid-moves))
@@ -35,7 +40,7 @@
 ; should return the same state
 (defn apply-move [bitboards player move]
     ; Check we aren't placing on an already occupied square
-    (if (> (bit-and (get-valid-moves bitboards) move) 0)
+    (if (> (bit-and (get-valid-moves-bitmask bitboards) move) 0)
         (assoc bitboards
                player
                (bit-and board-area ; to ensure moves aren't placed out of bounds
@@ -76,8 +81,7 @@
               turn-number         (dec (count history))
               current-player      (rem turn-number num-players)
               current-bitboards   (nth history turn-number)
-              valid-moves-bitmask (get-valid-moves current-bitboards)
-              valid-moves-list    (separate-bitboard valid-moves-bitmask)
+              valid-moves-list    (get-valid-moves-list current-bitboards)
               move                ((nth move-generators current-player) valid-moves-list)
               new-bitboards       (apply-move current-bitboards current-player move)
               new-history         (conj history new-bitboards)]
