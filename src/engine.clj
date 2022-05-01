@@ -51,49 +51,49 @@
     (= 0 (bit-xor board-area
                   (reduce bit-or bitboards))))
 
-; TO-DO: Return an int representing if a player wins e.g.:
 ;  output |        meaning
 ; --------+------------------------
-;    -1   | neither player has won
-;     0   | player 1 wins
-;     1   | player 2 wins
-;
-; TO-DO: Change signature to board -> int
-; (checking win should have no dependence on player)
-(defn check-for-win [bitboards player]
-    (loop [i (dec (count three-in-a-row))]
-        (let [win-direction (nth three-in-a-row i)
-              is-win        (= win-direction
-                               (bit-and (nth bitboards player) win-direction))]
-            ; Checking is-win allows us to escape the loop early if a win is found
-            (if (or is-win (= i 0))
-                is-win
-                (recur (dec i))))))
+;   nil   | neither player has won
+;    0    | player 1 wins
+;    1    | player 2 wins
+(defn check-win [bitboards]
+    (loop [player 0
+           win    nil]
+        (if (< player (count bitboards))
+            (if (some (fn [win-direction]
+                          (= win-direction
+                              (bit-and (nth bitboards player) win-direction)))
+                      three-in-a-row)
+                (recur (inc player) player)
+                (recur (inc player) win))
+            win)))
 
 
 (defn play-game [move-generators
                  initial-board]
     (loop [history [initial-board]]
-        ; Should really move num-players binding outside of this loop
-        ; to stop strictly unnecessary recalculations. But creating further nesting
-        ; due to another 'let' form seems excessive just for this.
-        (let [num-players         (count move-generators)
-              turn-number         (dec (count history))
-              current-player      (rem turn-number num-players)
-              current-bitboards   (nth history turn-number)
-              valid-moves-list    (get-valid-moves-list current-bitboards)
-              move                ((nth move-generators current-player) valid-moves-list)
-              new-bitboards       (apply-move current-bitboards current-player move)
-              new-history         (conj history new-bitboards)]
+        ; Should really move num-players binding outside of this loop to stop
+        ; strictly unnecessary recalculations. But creating further nesting due
+        ; to another 'let' form seems excessive just for this.
+        (let [num-players       (count move-generators)
+              turn-number       (dec (count history))
+              current-player    (rem turn-number num-players)
+              current-bitboards (nth history turn-number)
+              valid-moves-list  (get-valid-moves-list current-bitboards)
+              move              ((nth move-generators current-player) valid-moves-list)
+              new-bitboards     (apply-move current-bitboards current-player move)
+              new-history       (conj history new-bitboards)
+              win-status        (check-win new-bitboards)]
             (println (format "Turn #%d" turn-number))
             (println (format "Current player: %d" current-player))
             (println "New board:")
             (print-game-state new-bitboards)
             (newline)
+            (when (nat-int? win-status) (println "Player" win-status "wins!"))
+            (newline)
             (print-board board-size width new-bitboards)
             (newline)
-            (if (or (is-full new-bitboards)
-                    (check-for-win new-bitboards current-player))
+            (if (or (is-full new-bitboards) (nat-int? win-status))
                 new-history
                 (recur new-history)))))
 

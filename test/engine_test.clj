@@ -38,10 +38,10 @@
            (apply-move [0 0x01] 0 0x01))))
 
 (deftest is-full-test
-    (is (= false  (is-full [2r001001001 0x00])))
-    (is (= true   (is-full [2r001001001 2r110110110]))))
+    (is (= false (is-full [2r001001001 0x00])))
+    (is (= true  (is-full [2r001001001 2r110110110]))))
 
-(deftest check-for-win-test
-    (is (= true  (check-for-win [2r001001001 0x00]        0)))
-    (is (= true  (check-for-win [0x00        2r111000000] 1)))
-    (is (= false (check-for-win [2r000001001 2r000000110] 0))))
+(deftest check-win-test
+    (is (= 0   (check-win [2r001001001        0x00])))
+    (is (= 1   (check-win [0x00        2r111000000])))
+    (is (= nil (check-win [2r000001001 2r000000110]))))
