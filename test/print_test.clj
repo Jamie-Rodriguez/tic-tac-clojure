@@ -15,8 +15,7 @@
                                              [2r110001010 2r001010101]))))
 
 
-; This actually fails for n=1000 (returns 2 instead of 3),
-; due to rounding error.
+; This actually fails for n=1000 (returns 2 instead of 3), due to rounding error.
 ; But I don't expect anyone to create a board with 1000 squares...
 (deftest log-10-test
     (is (= 0 (log-10 1)))

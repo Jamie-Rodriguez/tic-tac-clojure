@@ -19,8 +19,7 @@
 (defn square-owner [index bitboards]
     (loop [i      0
            owner -1]
-        (if (or (not= owner -1)
-                (>= i (count bitboards)))
+        (if (or (not= owner -1) (>= i (count bitboards)))
             owner
             (recur (inc i)
                    (if (pos? (bit-and (bit-shift-left 1 index)
@@ -69,12 +68,10 @@
                i             (dec n-col)]
             (if (zero? i)
                 (str row-separator dash-string)
-                (recur (str row-separator dash-string "+")
-                       (dec i))))))
+                (recur (str row-separator dash-string "+") (dec i))))))
 
 (def row-separator
-    (create-row-separator (quot board-size width)
-                          (+ num-extra-padding 3)))
+    (create-row-separator (quot board-size width) (+ num-extra-padding 3)))
 
 
 ; Uses a chess-based coordinate system,

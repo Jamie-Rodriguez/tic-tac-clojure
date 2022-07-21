@@ -17,7 +17,7 @@
     (loop [n bitboard
            list-of-bitboards []]
         (let [remove-rightmost-setbit (bit-and n (dec n))]
-            (if (= n 0)
+            (if (zero? n)
                 list-of-bitboards
                 (recur remove-rightmost-setbit
                        (conj list-of-bitboards
@@ -33,9 +33,6 @@
         (when (pos-int? valid-moves-bitmask)
               (separate-bitboard valid-moves-bitmask))))
 
-(defn random-valid-move [valid-moves]
-    (rand-nth valid-moves))
-
 ; apply-move is idempotent; a move on an already-occupied square or out of bounds
 ; should return the same state
 (defn apply-move [bitboards player move]
@@ -47,8 +44,12 @@
                         (bit-or (nth bitboards player) move)))
         bitboards))
 
+(defn apply-move-to-state [{:keys [board current-player]} move]
+    {:board          (apply-move board current-player move)
+     :current-player (mod (inc current-player) (count board))})
+
 (defn is-full [bitboards]
-    (= 0 (bit-xor board-area
+    (zero? (bit-xor board-area
                   (reduce bit-or bitboards))))
 
 ;  output |        meaning
@@ -62,25 +63,32 @@
         (if (< player (count bitboards))
             (if (some (fn [win-direction]
                           (= win-direction
-                              (bit-and (nth bitboards player) win-direction)))
+                             (bit-and (nth bitboards player) win-direction)))
                       three-in-a-row)
                 (recur (inc player) player)
                 (recur (inc player) win))
             win)))
 
+(defn is-terminal? [bitboards]
+    (or (is-full bitboards)
+        (nat-int? (check-win bitboards))))
 
-(defn play-game [move-generators
-                 initial-board]
+
+(defn make-random-agent [get-valid-moves-list]
+    (fn [{:keys [board current-player]}]
+        (rand-nth (get-valid-moves-list board))))
+
+
+(defn play-game [agents initial-board]
     (loop [history [initial-board]]
         ; Should really move num-players binding outside of this loop to stop
         ; strictly unnecessary recalculations. But creating further nesting due
         ; to another 'let' form seems excessive just for this.
-        (let [num-players       (count move-generators)
-              turn-number       (dec (count history))
-              current-player    (rem turn-number num-players)
+        (let [turn-number       (dec (count history))
+              current-player    (rem turn-number (count agents))
               current-bitboards (nth history turn-number)
-              valid-moves-list  (get-valid-moves-list current-bitboards)
-              move              ((nth move-generators current-player) valid-moves-list)
+              current-state     {:board current-bitboards :current-player current-player}
+              move              ((nth agents current-player) current-state)
               new-bitboards     (apply-move current-bitboards current-player move)
               new-history       (conj history new-bitboards)
               win-status        (check-win new-bitboards)]
@@ -93,7 +101,7 @@
             (newline)
             (print-board board-size width new-bitboards)
             (newline)
-            (if (or (is-full new-bitboards) (nat-int? win-status))
+            (if (is-terminal? new-bitboards)
                 new-history
                 (recur new-history)))))
 
@@ -108,9 +116,9 @@
                                                                bitboard))
                                            bitboards))
                                        "]"))
-          history-to-string   (fn [history]
-                                  (map bitboards-to-string history))
-          history             (play-game [random-valid-move random-valid-move]
-                                         new-game)
+          history-to-string   (fn [history] (map bitboards-to-string history))
+          agents              [(make-random-agent get-valid-moves-list)
+                               (make-random-agent get-valid-moves-list)]
+          history             (play-game agents new-game)
           history-strings     (history-to-string history)]
         (run! println history-strings)))
