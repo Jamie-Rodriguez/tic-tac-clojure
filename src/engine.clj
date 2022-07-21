@@ -3,7 +3,8 @@
     (:use [clojure.string :only (join)])
     (:use [clojure.pprint :only (cl-format)])
     (:use constants)
-    (:use print))
+    (:use print)
+    (:use [mcts :only (make-mcts-agent)]))
 
 
 ; Uses a modified version of Brian Kernighan’s Algorithm.
@@ -27,11 +28,6 @@
 (defn get-valid-moves-bitmask [bitboards]
     (bit-and board-area ; to ensure moves aren't placed out of bounds
              (bit-not (reduce bit-or bitboards))))
-
-(defn get-valid-moves-list [bitboards]
-    (let [valid-moves-bitmask (get-valid-moves-bitmask bitboards)]
-        (when (pos-int? valid-moves-bitmask)
-              (separate-bitboard valid-moves-bitmask))))
 
 ; apply-move is idempotent; a move on an already-occupied square or out of bounds
 ; should return the same state
@@ -73,10 +69,25 @@
     (or (is-full bitboards)
         (nat-int? (check-win bitboards))))
 
+(defn get-valid-moves-list [bitboards]
+    (let [valid-moves-bitmask (get-valid-moves-bitmask bitboards)]
+        (when (and (pos-int? valid-moves-bitmask) (not (is-terminal? bitboards)))
+            (separate-bitboard valid-moves-bitmask))))
+
 
 (defn make-random-agent [get-valid-moves-list]
     (fn [{:keys [board current-player]}]
         (rand-nth (get-valid-moves-list board))))
+
+; Computation budget = number of iterations to run MCTS for
+(defn configure-mcts-agent [player-index exploration computation-budget]
+    (make-mcts-agent exploration
+                     get-valid-moves-list
+                     is-terminal?
+                     apply-move-to-state
+                     check-win
+                     player-index
+                     computation-budget))
 
 
 (defn play-game [agents initial-board]
@@ -117,8 +128,7 @@
                                            bitboards))
                                        "]"))
           history-to-string   (fn [history] (map bitboards-to-string history))
-          agents              [(make-random-agent get-valid-moves-list)
-                               (make-random-agent get-valid-moves-list)]
+          agents              [(make-random-agent get-valid-moves-list) (configure-mcts-agent 1 1.2 1000)]
           history             (play-game agents new-game)
           history-strings     (history-to-string history)]
         (run! println history-strings)))

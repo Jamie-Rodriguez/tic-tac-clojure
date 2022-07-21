@@ -13,12 +13,6 @@
     (is (= 0 (get-valid-moves-bitmask [2r000011111 2r111100000])))
     (is (= 2r000000011 (get-valid-moves-bitmask [2r000111100 2r111000000]))))
 
-(deftest get-valid-moves-list-test
-    (is (= nil
-           (get-valid-moves-list [2r000011111 2r111100000])))
-    (is (= [0x01 0x02]
-           (get-valid-moves-list [2r000111100 2r111000000]))))
-
 (deftest apply-move-test
     (is (= [0x01 0] (apply-move [2r0 2r0] 0 0x01)))
     (is (= [0 0x01] (apply-move [2r0 2r0] 1 0x01))))
@@ -57,3 +51,10 @@
     (is (= true (is-terminal? [2r001110011 2r110001100])))
     ; Non-terminal
     (is (= false (is-terminal? [2r000000001 2r000000000]))))
+
+(deftest get-valid-moves-list-test
+    (is (= nil (get-valid-moves-list [2r000011111 2r111100000])))
+    (is (= [2r000000010 2r000000100]
+           (get-valid-moves-list [2r010110001 2r101001000])))
+    ; Terminal states should return nil
+    (is (= nil (get-valid-moves-list [2r001100001 2r010010010]))))
