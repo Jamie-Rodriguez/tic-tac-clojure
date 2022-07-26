@@ -90,11 +90,9 @@
                      computation-budget))
 
 
+; Lots of visual information to help debugging
 (defn play-game [agents initial-board]
     (loop [history [initial-board]]
-        ; Should really move num-players binding outside of this loop to stop
-        ; strictly unnecessary recalculations. But creating further nesting due
-        ; to another 'let' form seems excessive just for this.
         (let [turn-number       (dec (count history))
               current-player    (rem turn-number (count agents))
               current-bitboards (nth history turn-number)
@@ -116,19 +114,65 @@
                 new-history
                 (recur new-history)))))
 
+; No visual information, used for simulating a large amount of games
+(defn play-game-result [agents initial-board]
+    (loop [history [initial-board]]
+        (let [turn-number       (dec (count history))
+              current-player    (rem turn-number (count agents))
+              current-bitboards (nth history turn-number)
+              current-state     {:board current-bitboards :current-player current-player}
+              move              ((nth agents current-player) current-state)
+              new-bitboards     (apply-move current-bitboards current-player move)
+              new-history       (conj history new-bitboards)
+              win-status        (check-win new-bitboards)]
+            (if (is-terminal? new-bitboards)
+                win-status
+                (recur new-history)))))
+
+
+(defn bitboards-to-string [bitboards]
+    (str "["
+         (join " "
+               (map (fn [bitboard] (cl-format nil
+                                              (str "~" board-size ",'0B")
+                                              bitboard))
+               bitboards))
+         "]"))
+
+(defn history-to-string [history]
+    (map bitboards-to-string history))
+
+(defn play-game-print-history []
+    (let [agents          [(configure-mcts-agent 0 1.2 100)
+                           (configure-mcts-agent 1 1.2 1000)]
+          history         (play-game agents new-game)
+          history-strings (history-to-string history)]
+        (run! println history-strings)))
+
+
+(defn play-n-games [agents iterations]
+    (loop [stats {:wins   [0 0]
+                  :draws  0}
+           n      iterations]
+        (let [result (play-game-result agents new-game)]
+            (if (zero? n)
+                (println stats)
+                (recur (cond (nil? result)
+                                 (assoc stats :draws (inc (:draws stats)))
+                             :else
+                                 (assoc-in stats
+                                           [:wins result]
+                                           (inc (nth (:wins stats) result))))
+                       (dec n))))))
+
 
 (defn -main [& args]
-    (let [bitboards-to-string (fn [bitboards]
-                                  (str "["
-                                       (join " "
-                                           (map (fn [bitboard]
-                                                    (cl-format nil
-                                                               (str "~" board-size ",'0B")
-                                                               bitboard))
-                                           bitboards))
-                                       "]"))
-          history-to-string   (fn [history] (map bitboards-to-string history))
-          agents              [(make-random-agent get-valid-moves-list) (configure-mcts-agent 1 1.2 1000)]
-          history             (play-game agents new-game)
-          history-strings     (history-to-string history)]
-        (run! println history-strings)))
+    (println "Testing for 1000 games:")
+    (println "Player 0 - random moves")
+    (println "Player 1 - mcts-agent: exploration 1.2 iterations 1000")
+    (println (play-n-games [(make-random-agent get-valid-moves-list)
+                            (configure-mcts-agent 1 1.2 1000)]
+                           1000))
+
+    (println "Playing a game and printing visual info:")
+    (play-game-print-history))

@@ -238,7 +238,7 @@
                                 :num-rollouts 2
                                 :score 2
                                 ; Make stats of these two moves identical, to
-                                ; check that select() intellegently picks the
+                                ; check that select() intelligently picks the
                                 ; non-terminal state.
                                 ; (The tie-breaker would otherwise
                                 ; *incorrectly* pick the move at index 1)
@@ -364,7 +364,7 @@
                                :score 1
                                :moves []}]}))))
 
-(deftest update-test
+(deftest replace-node-test
     (is (= {:state {:board [2r000000000 2r000000000]
                     :current-player 0}
             :move 2r000000000
@@ -392,45 +392,45 @@
                                        :num-rollouts 1
                                        :score 1
                                        :moves []}]}]}]}
-           (update-node {:state {:board [2r000000000 2r000000000]
-                                 :current-player 0}
-                         :move 2r000000000
-                         :num-rollouts 4
-                         :score 3
-                         :moves [{:move 2r000000001
-                                  :state {:board [2r000000001 2r000000000]
-                                          :current-player 1}
-                                  :num-rollouts 1
-                                  :score 1
-                                  :moves [{:move 2r000000010
-                                           :state {:board [2r000000001 2r000000010]
-                                                   :current-player 0}
-                                           :num-rollouts 2
-                                           :score 1
-                                           :moves [{:move 2r000000100
-                                                    :state {:board [2r000000101 2r000000010]
-                                                            :current-player 1}
-                                                    :num-rollouts 1
-                                                    :score 1
-                                                    :moves []}]}]}]}
-                        [2r000000001 2r000000010]
-                        {:move 2r000000010
-                         :state {:board [2r000000001 2r000000010]
-                                 :current-player 0}
-                         :num-rollouts 2
-                         :score 1
-                         :moves [{:move 2r000000100
-                                  :state {:board [2r000000101 2r000000010]
-                                          :current-player 1}
-                                  :num-rollouts 1
-                                  :score 1
-                                  :moves []}
-                                 {:move 2r000001000
-                                  :state {:board [2r000001001 2r000000010]
-                                          :current-player 1}
-                                  :num-rollouts 1
-                                  :score 1
-                                  :moves []}]}))))
+           (replace-node {:state {:board [2r000000000 2r000000000]
+                                  :current-player 0}
+                          :move 2r000000000
+                          :num-rollouts 4
+                          :score 3
+                          :moves [{:move 2r000000001
+                                   :state {:board [2r000000001 2r000000000]
+                                           :current-player 1}
+                                   :num-rollouts 1
+                                   :score 1
+                                   :moves [{:move 2r000000010
+                                            :state {:board [2r000000001 2r000000010]
+                                                    :current-player 0}
+                                            :num-rollouts 2
+                                            :score 1
+                                            :moves [{:move 2r000000100
+                                                     :state {:board [2r000000101 2r000000010]
+                                                             :current-player 1}
+                                                     :num-rollouts 1
+                                                     :score 1
+                                                     :moves []}]}]}]}
+                         [2r000000001 2r000000010]
+                         {:move 2r000000010
+                          :state {:board [2r000000001 2r000000010]
+                                  :current-player 0}
+                          :num-rollouts 2
+                          :score 1
+                          :moves [{:move 2r000000100
+                                   :state {:board [2r000000101 2r000000010]
+                                           :current-player 1}
+                                   :num-rollouts 1
+                                   :score 1
+                                   :moves []}
+                                  {:move 2r000001000
+                                   :state {:board [2r000001001 2r000000010]
+                                           :current-player 1}
+                                   :num-rollouts 1
+                                   :score 1
+                                   :moves []}]}))))
 
 (deftest simulate-test
     (let [mock-is-terminal?        (fn [board] (reduce
@@ -595,66 +595,125 @@
         (is (= false (is-path-valid? tree [2r100000000 2r001000000 2r000000001])))
         (is (= true (is-path-valid? tree [])))))
 
-; Not testing if an invalid path is passed in
-; for now it will throw a null pointer exception
+; Not testing if an invalid path is passed in.
+; For now it will throw a null pointer exception
 (deftest backprop-test
-    (is (= {:move 2r000001000
-            :state {:board [2r010000101 2r000011010]
-                    :current-player 0}
-            :num-rollouts 5
-            :score 3
-            :moves [{:move 2r001000000
-                     :state {:board [2r011000101 2r000011010]
-                             :current-player 1}
-                     :num-rollouts 1
-                     :score 0
-                     :moves []}
-                    {:move 2r100000000
-                     :state {:board [2r110000101 2r000011010]
-                             :current-player 1}
-                     :num-rollouts 3
-                     :score 2
-                     :moves [{:move 2r000100000
-                              :state {:board [2r110000101 2r000111010]
-                                      :current-player 0}
-                              :num-rollouts 1
-                              :score 0
-                              :moves []}
-                              ; This is the leaf node to backprop from
-                             {:move 2r001000000
-                              :state {:board [2r110000101 2r001011010]
-                                      :current-player 0}
-                              :num-rollouts 1
-                              :score 1
-                              :moves []}]}]}
-           (backprop 1
-                     [2r100000000 2r001000000]
-                     {:move 2r000001000
-                      :state {:board [2r010000101 2r000011010]
-                              :current-player 0}
-                      :num-rollouts 4
-                      :score 2
-                      :moves [{:move 2r001000000
-                              :state {:board [2r011000101 2r000011010]
-                                      :current-player 1}
-                              :num-rollouts 1
-                              :score 0
-                              :moves []}
-                              {:move 2r100000000
-                              :state {:board [2r110000101 2r000011010]
-                                      :current-player 1}
-                              :num-rollouts 2
-                              :score 1
-                              :moves [{:move 2r000100000
-                                       :state {:board [2r110000101 2r000111010]
-                                               :current-player 0}
-                                       :num-rollouts 1
-                                       :score 0
-                                       :moves []}
-                                      ; This is the leaf node to backprop from
-                                      {:move 2r001000000
-                                       :state {:board [2r110000101 2r001011010]
-                                               :current-player 0}
-                                       :num-rollouts 0
-                                       :score 0
-                                       :moves []}]}]}))))
+    (let [initial-state {:move 2r000001000
+                         :state {:board [2r010000101 2r000011010]
+                                 :current-player 0}
+                         :num-rollouts 4
+                         :score 2
+                         :moves [{:move 2r001000000
+                                 :state {:board [2r011000101 2r000011010]
+                                         :current-player 1}
+                                 :num-rollouts 1
+                                 :score 0
+                                 :moves []}
+                                 {:move 2r100000000
+                                  :state {:board [2r110000101 2r000011010]
+                                          :current-player 1}
+                                  :num-rollouts 2
+                                  :score 1
+                                  :moves [{:move 2r000100000
+                                           :state {:board [2r110000101 2r000111010]
+                                                   :current-player 0}
+                                           :num-rollouts 1
+                                           :score 0
+                                           :moves []}
+                                          ; This is the leaf node to backprop from
+                                          {:move 2r001000000
+                                           :state {:board [2r110000101 2r001011010]
+                                                   :current-player 0}
+                                           :num-rollouts 0
+                                           :score 0
+                                           :moves []}]}]}]
+        (is (= {:move 2r000001000
+                :state {:board [2r010000101 2r000011010]
+                        :current-player 0}
+                :num-rollouts 5
+                :score 1
+                :moves [{:move 2r001000000
+                         :state {:board [2r011000101 2r000011010]
+                                 :current-player 1}
+                         :num-rollouts 1
+                         :score 0
+                         :moves []}
+                        {:move 2r100000000
+                         :state {:board [2r110000101 2r000011010]
+                                 :current-player 1}
+                         :num-rollouts 3
+                         :score 2
+                         :moves [{:move 2r000100000
+                                  :state {:board [2r110000101 2r000111010]
+                                          :current-player 0}
+                                  :num-rollouts 1
+                                  :score 0
+                                  :moves []}
+                                 ; This is the leaf node to backprop from
+                                 {:move 2r001000000
+                                  :state {:board [2r110000101 2r001011010]
+                                          :current-player 0}
+                                  :num-rollouts 1
+                                  :score -1
+                                  :moves []}]}]}
+               (backprop 0 [2r100000000 2r001000000] initial-state 1)))
+        (is (= {:move 2r000001000
+                :state {:board [2r010000101 2r000011010]
+                        :current-player 0}
+                :num-rollouts 5
+                :score 2
+                :moves [{:move 2r001000000
+                         :state {:board [2r011000101 2r000011010]
+                                 :current-player 1}
+                         :num-rollouts 1
+                         :score 0
+                         :moves []}
+                        {:move 2r100000000
+                         :state {:board [2r110000101 2r000011010]
+                                 :current-player 1}
+                         :num-rollouts 3
+                         :score 1
+                         :moves [{:move 2r000100000
+                                  :state {:board [2r110000101 2r000111010]
+                                          :current-player 0}
+                                  :num-rollouts 1
+                                  :score 0
+                                  :moves []}
+                                 ; This is the leaf node to backprop from
+                                 {:move 2r001000000
+                                  :state {:board [2r110000101 2r001011010]
+                                          :current-player 0}
+                                  :num-rollouts 1
+                                  :score 0
+                                  :moves []}]}]}
+               (backprop nil [2r100000000 2r001000000] initial-state 1)))
+        (is (= {:move 2r000001000
+                :state {:board [2r010000101 2r000011010]
+                        :current-player 0}
+                :num-rollouts 5
+                :score 3
+                :moves [{:move 2r001000000
+                         :state {:board [2r011000101 2r000011010]
+                                 :current-player 1}
+                         :num-rollouts 1
+                         :score 0
+                         :moves []}
+                        {:move 2r100000000
+                         :state {:board [2r110000101 2r000011010]
+                                 :current-player 1}
+                         :num-rollouts 3
+                         :score 0
+                         :moves [{:move 2r000100000
+                                  :state {:board [2r110000101 2r000111010]
+                                          :current-player 0}
+                                  :num-rollouts 1
+                                  :score 0
+                                  :moves []}
+                                 ; This is the leaf node to backprop from
+                                 {:move 2r001000000
+                                  :state {:board [2r110000101 2r001011010]
+                                          :current-player 0}
+                                  :num-rollouts 1
+                                  :score 1
+                                  :moves []}]}]}
+               (backprop 1 [2r100000000 2r001000000] initial-state 1)))))

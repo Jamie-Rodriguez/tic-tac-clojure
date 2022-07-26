@@ -11,7 +11,8 @@
 ; recursively from the leaf nodes, for a large tree this will be quite
 ; expensive. So calculate and cache the statistics, updating only with new leaf
 ; data as we see it.
-; Cache the values of num-rollouts, score and is-terminal? to prevent repeated computations
+; Cache the values of num-rollouts and score to prevent repeated computations
+
 
 (defn uct [exploration total-rollouts-parent {:keys [num-rollouts score]}]
     "Upper Confidence Bound 1 applied to trees,
@@ -84,8 +85,9 @@
                                               (mod (get-random-int) (count max-ucts)))))]
                 (recur next-node (conj path (next-node :move)))))))
 
-; Probably don't need tests for this tiny helper function...
-; Testing found using reduce()'s early escape 'reduced()' faster than a basic filter() method
+; Probably don't need unit tests for this tiny helper function...
+; Testing found using reduce()'s early escape 'reduced()' faster than a basic
+; filter() method
 (defn find-next-node [next-move nodes]
     (reduce (fn [dont-care node] (if (= (get node :move) next-move)
                                      (reduced node)
@@ -101,22 +103,22 @@
             (recur (find-next-node (first current-path) (get current-node :moves))
                    (rest current-path)))))
 
+; This is the "expansion" step, but I think "replace node" is more indicative
+; of *how* we are achieving it
 ; TO-DO: Protect against invalid path
-(defn update-node [node path updated-node]
+(defn replace-node [node path updated-node]
     (if (empty? path)
         updated-node
         (assoc node
                ; Note: It doesn't matter, but this conj() operation changes
                ; the original order of the moves
-                            ; The other child moves
                             ; Have to convert back into a vector because
                             ; filter() returns a lazy sequence
                :moves (conj (vec (filter (fn [n] (not= (:move n) (first path)))
                                          (get node :moves)))
-                            ; Get the next move along the path with updated stats
-               (update-node (find-next-node (first path) (get node :moves))
-                            (rest path)
-                            updated-node)))))
+               (replace-node (find-next-node (first path) (get node :moves))
+                             (rest path)
+                             updated-node)))))
 
 (defn simulate [is-terminal?
                 check-win
@@ -141,15 +143,25 @@
                 (recur next-node (rest current-path))
                 false))))
 
+; Note: The root node's score is not actually used, but we backprop up to it
+; and update it anyway
 ; Use a depth-first search style recursion to drill down the tree along 'path',
-; returning updated nodes as the call-stack collapses back up the tree to the root node
+; returning updated nodes as the call-stack collapses back up the tree to the
+; root node
+; TO-DO: Change backprop to not update the score of the root node
 ; TO-DO: Protect against invalid path
-; If not all the moves on 'path' exist in the tree, will throw a null pointer exception
-; when trying to access the nonexsistant current node, which = null
-(defn backprop [score path node]
+; If not all the moves on 'path' exist in the tree, will throw a null pointer
+; exception when trying to access the non-existent current node, which = null
+(defn backprop [who-won? path node previous-player]
     (let [new-node (assoc node
                           :num-rollouts (inc (:num-rollouts node))
-                          :score     (+ score (:score node)))]
+                          :score (+ (:score node)
+                                    (cond (= who-won? previous-player)
+                                              1
+                                          (nil? who-won?)
+                                              0
+                                          :else
+                                              -1)))]
         (if (empty? path)
             new-node
             (assoc new-node
@@ -161,9 +173,10 @@
                    :moves (conj (vec (filter (fn [n] (not= (:move n) (first path)))
                                              (get new-node :moves)))
                                 ; Get the next move along the path with updated stats
-                                (backprop score
+                                (backprop who-won?
                                           (rest path)
-                                          (find-next-node (first path) (get new-node :moves))))))))
+                                          (find-next-node (first path) (get new-node :moves))
+                                          (get-in node [:state :current-player])))))))
 
 (defn make-mcts-agent [exploration
                        get-valid-moves
@@ -199,15 +212,15 @@
                                                                                     unexplored-move)
                                                           :move         unexplored-move
                                                           :num-rollouts 0
-                                                          :score     0
+                                                          :score        0
                                                           :moves        []}
                                          expanded-node   (assoc-in selected-node
                                                                    [:moves]
                                                                    (conj (selected-node :moves)
                                                                          unexplored-node))]
-                                        (update-node tree
-                                                     selected-node-path
-                                                     expanded-node))
+                                        (replace-node tree
+                                                      selected-node-path
+                                                      expanded-node))
                                    tree)
                       ; Simulate handles terminal nodes
                       simulation-result (simulate is-terminal?
@@ -216,17 +229,15 @@
                                                   (fn [] (rand-int Integer/MAX_VALUE))
                                                   apply-move
                                                   (:state (treewalk path new-tree)))]
-                    ; In vanilla implementations, a draw and a loss are both scored as 0
-                    ; Playing around with penalising a loss more than a draw,
-                    ; as draws can be very common in some games i.e. chess, tic-tac-toe
-                    (recur (backprop (cond (= simulation-result player-index)
-                                               1
-                                           (nil? simulation-result)
-                                               0
-                                           :else
-                                               -10)
+                    ; The root node's score is not actually used, but we
+                    ; backprop up to it and update it anyway.
+                    ; We don't know the previous state, especially for the case
+                    ; that the root node is the start of the game i.e. there
+                    ; was not previous state
+                    (recur (backprop simulation-result
                                      path
-                                     new-tree)
+                                     new-tree
+                                     -1)
                            (dec budget)))
                 ; https://ai.stackexchange.com/questions/16905/mcts-how-to-choose-the-final-action-from-the-root
                 ; Choose best move via the "robust child" method = highest # of visits
