@@ -26,13 +26,13 @@
     (is (= [0 1] (apply-move [0 1] 0 1))))
 
 (deftest apply-move-to-state-test
-    (is (= {:board [2r100010010 2r011000101] :current-player 0}
+    (is (= {:board [2r100010010 2r011000101] :player-to-move 0}
            (apply-move-to-state {:board [2r100010010 2r011000100]
-                                 :current-player 1}
+                                 :player-to-move 1}
                                 2r000000001)))
-    (is (= {:board [2r100011010 2r011000101] :current-player 1}
+    (is (= {:board [2r100011010 2r011000101] :player-to-move 1}
            (apply-move-to-state {:board [2r100010010 2r011000101]
-                                 :current-player 0}
+                                 :player-to-move 0}
                                 2r000001000))))
 
 (deftest is-full-test

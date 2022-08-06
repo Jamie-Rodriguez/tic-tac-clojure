@@ -176,7 +176,7 @@
                                 (backprop who-won?
                                           (rest path)
                                           (find-next-node (first path) (get new-node :moves))
-                                          (get-in node [:state :current-player])))))))
+                                          (get-in node [:state :player-to-move])))))))
 
 (defn make-mcts-agent [exploration
                        get-valid-moves

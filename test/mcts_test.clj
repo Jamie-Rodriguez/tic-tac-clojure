@@ -30,32 +30,32 @@
         (is (= nil
                (get-unexplored-moves mock-get-valid-moves
                                      {:state {:board [2r010100101 2r000011010]
-                                              :current-player 1}
+                                              :player-to-move 1}
                                       :move 2r000100000
                                       :num-rollouts 5
                                       :score 2
                                       :moves [{:move 2r001000000
                                                :state {:board [2r010100101 2r001011010]
-                                                       :current-player 0}
+                                                       :player-to-move 0}
                                                :num-rollouts 2
                                                :score 2
                                                :moves []}
                                               {:move 2r100000000
                                                :state {:board [2r010100101 2r100011010]
-                                                       :current-player 0}
+                                                       :player-to-move 0}
                                                :num-rollouts 1
                                                :score 0
                                                :moves []}]})))
         (is (= [2r100000000]
                (get-unexplored-moves mock-get-valid-moves
                                      {:state {:board [2r010100101 2r000011010]
-                                              :current-player 1}
+                                              :player-to-move 1}
                                       :move 2r000100000
                                       :num-rollouts 5
                                       :score 5
                                       :moves [{:move 2r001000000
                                                :state {:board [2r010100101 2r001011010]
-                                                       :current-player 0}
+                                                       :player-to-move 0}
                                                :num-rollouts 5
                                                :score 5
                                                :moves []}]})))))
@@ -78,13 +78,13 @@
                                      mock-valid-moves
                                      is-terminal?
                                      {:state {:board [2r100010010 2r011000100]
-                                              :current-player 1}
+                                              :player-to-move 1}
                                       :move 2r100000000
                                       :num-rollouts 2
                                       :score 1
                                       :moves [{:move 2r000000001
                                                :state {:board [2r100010010 2r011000101]
-                                                       :current-player 0}
+                                                       :player-to-move 0}
                                                :num-rollouts 2
                                                :score 1
                                                :moves []}]})))
@@ -95,13 +95,13 @@
                                      mock-valid-moves
                                      is-terminal?
                                      {:state {:board [2r001110001 2r110001100]
-                                              :current-player 0}
+                                              :player-to-move 0}
                                       :move 2r010000000
                                       :num-rollouts 2
                                       :score 0
                                       :moves [{:move 2r000000010
                                                :state {:board [2r001110011 2r110001100]
-                                                       :current-player 1}
+                                                       :player-to-move 1}
                                                :num-rollouts 1
                                                :score 0
                                                :moves []}]})))
@@ -111,17 +111,17 @@
                                      mock-valid-moves
                                      is-terminal?
                                      {:state {:board [2r001001101 2r100010010]
-                                              :current-player 1}
+                                              :player-to-move 1}
                                       :move 2r000001000
                                       :num-rollouts 2
                                       :score 1
                                       :moves []})))))
 
 (deftest select-test
-    ; Start from state { :board [2r010000101 2r000011010] :current-player 0 }
+    ; Start from state { :board [2r010000101 2r000011010] :player-to-move 0 }
     ; There are three possible moves to choose from.
     (let [initial-state      {:state {:board [2r010000101 2r000011010]
-                                      :current-player 0}
+                                      :player-to-move 0}
                               :move 2r000001000
                               :num-rollouts 5
                               :score 3
@@ -154,7 +154,7 @@
                               :moves
                               [{:move 2r000100000
                                 :state {:board [2r010100101 2r000011010]
-                                        :current-player 1}
+                                        :player-to-move 1}
                                 :num-rollouts 5
                                 :score 3
                                 :moves []}]))))
@@ -170,19 +170,19 @@
                               :moves
                               [{:move 2r000100000
                                 :state {:board [2r010100101 2r000011010]
-                                        :current-player 1}
+                                        :player-to-move 1}
                                 :num-rollouts 1
                                 :score 1
                                 :moves []}
                                {:move 2r001000000
                                 :state {:board [2r011000101 2r000011010]
-                                        :current-player 1}
+                                        :player-to-move 1}
                                 :num-rollouts 1
                                 :score 1
                                 :moves []}
                                {:move 2r100000000
                                 :state {:board [2r110000101 2r000011010]
-                                        :current-player 1}
+                                        :player-to-move 1}
                                 :num-rollouts 1
                                 :score 1
                                 :moves []}]))))
@@ -198,19 +198,19 @@
                               :moves
                               [{:move 2r000100000
                                 :state {:board [2r010100101 2r000011010]
-                                        :current-player 1}
+                                        :player-to-move 1}
                                 :num-rollouts 1
                                 :score 0
                                 :moves []}
                                {:move 2r001000000
                                 :state {:board [2r011000101 2r000011010]
-                                        :current-player 1}
+                                        :player-to-move 1}
                                 :num-rollouts 2
                                 :score 2
                                 :moves []}
                                {:move 2r100000000
                                 :state {:board [2r110000101 2r000011010]
-                                        :current-player 1}
+                                        :player-to-move 1}
                                 :num-rollouts 2
                                 :score 1
                                 :moves []}]))))
@@ -228,13 +228,13 @@
                               :moves
                               [{:move 2r000100000
                                 :state {:board [2r010100101 2r000011010]
-                                        :current-player 1}
+                                        :player-to-move 1}
                                 :num-rollouts 1
                                 :score 0
                                 :moves []}
                                {:move 2r001000000
                                 :state {:board [2r011000101 2r000011010]
-                                        :current-player 1}
+                                        :player-to-move 1}
                                 :num-rollouts 2
                                 :score 2
                                 ; Make stats of these two moves identical, to
@@ -244,7 +244,7 @@
                                 ; *incorrectly* pick the move at index 1)
                                 :moves [{:move 2r100000000
                                          :state {:board [2r011000101 2r100011010]
-                                                 :current-player 0}
+                                                 :player-to-move 0}
                                          :num-rollouts 1
                                          :score 0
                                          :moves []}
@@ -253,13 +253,13 @@
                                         ; states for selection
                                         {:move 2r000100000
                                          :state {:board [2r011000101 2r000111010]
-                                                 :current-player 0}
+                                                 :player-to-move 0}
                                          :num-rollouts 1
                                          :score 0
                                          :moves []}]}
                                {:move 2r100000000
                                 :state {:board [2r110000101 2r000011010]
-                                        :current-player 1}
+                                        :player-to-move 1}
                                 :num-rollouts 2
                                 :score 1
                                 :moves []}]))))
@@ -276,27 +276,27 @@
                        (fn [board] (or (= board [2r101011010 2r010100101])
                                        (= board [2r101110010 2r010001101])))
                        {:state {:board [2r101010010 2r010000101]
-                                :current-player 1}
+                                :player-to-move 1}
                         :num-rollouts 4
                         :score 0
                         :moves [{:state {:board [2r101010010 2r010100101]
-                                         :current-player 0}
+                                         :player-to-move 0}
                                  :move 2r000100000
                                  :num-rollouts 2
                                  :score 0
                                  :moves [{:state {:board [2r101011010 2r010100101]
-                                                  :current-player 1}
+                                                  :player-to-move 1}
                                           :move 2r000001000
                                           :num-rollouts 1
                                           :score 0
                                           :moves []}]}
                                 {:state {:board [2r101010010 2r010001101]
-                                                 :current-player 0}
+                                                 :player-to-move 0}
                                  :move 2r000001000
                                  :num-rollouts 2
                                  :score 0
                                  :moves [{:state {:board [2r101110010 2r010001101]
-                                                  :current-player 1}
+                                                  :player-to-move 1}
                                           :move 2r000100000
                                           :num-rollouts 1
                                           :score 0
@@ -309,125 +309,125 @@
 (deftest treewalk-test
     (is (= {:move 2r000000010
             :state {:board [2r000000001 2r000000010]
-                    :current-player 0}
+                    :player-to-move 0}
             :num-rollouts 2
             :score 1
             :moves [{:move 2r000000100
                      :state {:board [2r000000101 2r000000010]
-                             :current-player 1}
+                             :player-to-move 1}
                      :num-rollouts 1
                      :score 1
                      :moves []}]}
            (treewalk [2r000000001 2r000000010]
                      {:state {:board [2r000000000 2r000000000]
-                              :current-player 0}
+                              :player-to-move 0}
                       :move 2r000000000
                       :num-rollouts 4
                       :score 3
                       :moves [{:move 2r000000001
                               :state {:board [2r000000001 2r000000000]
-                                      :current-player 1}
+                                      :player-to-move 1}
                               :num-rollouts 1
                               :score 1
                               :moves [{:move 2r000000010
                                        :state {:board [2r000000001 2r000000010]
-                                               :current-player 0}
+                                               :player-to-move 0}
                                        :num-rollouts 2
                                        :score 1
                                        :moves [{:move 2r000000100
                                                 :state {:board [2r000000101 2r000000010]
-                                                        :current-player 1}
+                                                        :player-to-move 1}
                                                 :num-rollouts 1
                                                 :score 1
                                                 :moves []}]}]}]})))
     (is (= {:state {:board [2r000000000 2r000000000]
-                    :current-player 0}
+                    :player-to-move 0}
             :move 2r000000000
             :num-rollouts 4
             :score 3
             :moves [{:move 2r000000001
                      :state {:board [2r000000001 2r000000000]
-                             :current-player 1}
+                             :player-to-move 1}
                      :num-rollouts 1
                      :score 1
                      :moves []}]}
            (treewalk []
                      {:state {:board [2r000000000 2r000000000]
-                              :current-player 0}
+                              :player-to-move 0}
                       :move 2r000000000
                       :num-rollouts 4
                       :score 3
                       :moves [{:move 2r000000001
                                :state {:board [2r000000001 2r000000000]
-                                       :current-player 1}
+                                       :player-to-move 1}
                                :num-rollouts 1
                                :score 1
                                :moves []}]}))))
 
 (deftest replace-node-test
     (is (= {:state {:board [2r000000000 2r000000000]
-                    :current-player 0}
+                    :player-to-move 0}
             :move 2r000000000
             :num-rollouts 4
             :score 3
             :moves [{:move 2r000000001
                      :state {:board [2r000000001 2r000000000]
-                             :current-player 1}
+                             :player-to-move 1}
                      :num-rollouts 1
                      :score 1
                      :moves [{:move 2r000000010
                               :state {:board [2r000000001 2r000000010]
-                                      :current-player 0}
+                                      :player-to-move 0}
                               :num-rollouts 2
                               :score 1
                               :moves [{:move 2r000000100
                                        :state {:board [2r000000101 2r000000010]
-                                               :current-player 1}
+                                               :player-to-move 1}
                                        :num-rollouts 1
                                        :score 1
                                        :moves []}
                                       {:move 2r000001000
                                        :state {:board [2r000001001 2r000000010]
-                                               :current-player 1}
+                                               :player-to-move 1}
                                        :num-rollouts 1
                                        :score 1
                                        :moves []}]}]}]}
            (replace-node {:state {:board [2r000000000 2r000000000]
-                                  :current-player 0}
+                                  :player-to-move 0}
                           :move 2r000000000
                           :num-rollouts 4
                           :score 3
                           :moves [{:move 2r000000001
                                    :state {:board [2r000000001 2r000000000]
-                                           :current-player 1}
+                                           :player-to-move 1}
                                    :num-rollouts 1
                                    :score 1
                                    :moves [{:move 2r000000010
                                             :state {:board [2r000000001 2r000000010]
-                                                    :current-player 0}
+                                                    :player-to-move 0}
                                             :num-rollouts 2
                                             :score 1
                                             :moves [{:move 2r000000100
                                                      :state {:board [2r000000101 2r000000010]
-                                                             :current-player 1}
+                                                             :player-to-move 1}
                                                      :num-rollouts 1
                                                      :score 1
                                                      :moves []}]}]}]}
                          [2r000000001 2r000000010]
                          {:move 2r000000010
                           :state {:board [2r000000001 2r000000010]
-                                  :current-player 0}
+                                  :player-to-move 0}
                           :num-rollouts 2
                           :score 1
                           :moves [{:move 2r000000100
                                    :state {:board [2r000000101 2r000000010]
-                                           :current-player 1}
+                                           :player-to-move 1}
                                    :num-rollouts 1
                                    :score 1
                                    :moves []}
                                   {:move 2r000001000
                                    :state {:board [2r000001001 2r000000010]
-                                           :current-player 1}
+                                           :player-to-move 1}
                                    :num-rollouts 1
                                    :score 1
                                    :moves []}]}))))
@@ -475,52 +475,52 @@
                                            ; 2-ply states
                                            (= state
                                               {:board [2r010100101 2r000011010]
-                                               :current-player 1})
+                                               :player-to-move 1})
                                               (if (= move 2r001000000)
                                                   {:board [2r010100101 2r001011010]
-                                                   :current-player 0}
+                                                   :player-to-move 0}
                                                   ; 2r100000000
                                                   {:board [2r010100101 2r100011010]
-                                                   :current-player 0})
+                                                   :player-to-move 0})
                                            (= state
                                               {:board [2r011000101 2r000011010]
-                                               :current-player 1})
+                                               :player-to-move 1})
                                               (if (= move 2r000100000)
                                                   {:board [2r011000101 2r000111010]
-                                                   :current-player 0}
+                                                   :player-to-move 0}
                                                   ; 2r100000000
                                                   {:board [2r011000101 2r100011010]
-                                                   :current-player 0})
+                                                   :player-to-move 0})
                                            (= state
                                               {:board [2r110000101 2r000011010]
-                                               :current-player 1})
+                                               :player-to-move 1})
                                               (if (= move 2r000100000)
                                                   {:board [2r110000101 2r000111010]
-                                                   :current-player 0}
+                                                   :player-to-move 0}
                                                   ; 2r001000000
                                                   {:board [2r110000101 2r001011010]
-                                                   :current-player 0})
+                                                   :player-to-move 0})
                                            ; 1-ply states
                                            (= state
                                               {:board [2r010100101 2r001011010]
-                                               :current-player 0})
+                                               :player-to-move 0})
                                               {:board [2r110100101 2r001011010]
-                                               :current-player 1}
+                                               :player-to-move 1}
                                            (= state
                                               {:board [2r010100101 2r100011010]
-                                               :current-player 0})
+                                               :player-to-move 0})
                                               {:board [2r110100101 2r001011010]
-                                               :current-player 1}
+                                               :player-to-move 1}
                                            (= state
                                               {:board [2r011000101 2r100011010]
-                                               :current-player 0})
+                                               :player-to-move 0})
                                               {:board [2r011100101 2r100011010]
-                                               :current-player 1}
+                                               :player-to-move 1}
                                            (= state
                                               {:board [2r110000101 2r001011010]
-                                               :current-player 0})
+                                               :player-to-move 0})
                                               {:board [2r110100101 2r001011010]
-                                               :current-player 1}
+                                               :player-to-move 1}
                                            :else
                                                "SHOULD NOT HAVE HIT HERE"))]
         ; 2-ply moves
@@ -532,7 +532,7 @@
                                  mock-valid-moves
                                  p-random-gen
                                  mock-apply-move-to-state
-                                 {:board [2r010100101 2r000011010] :current-player 1})))
+                                 {:board [2r010100101 2r000011010] :player-to-move 1})))
         ; Lose or draw possible
         (is (.contains [nil 1]
                        (simulate mock-is-terminal?
@@ -540,7 +540,7 @@
                                  mock-valid-moves
                                  p-random-gen
                                  mock-apply-move-to-state
-                                 {:board [2r011000101 2r000011010] :current-player 1})))
+                                 {:board [2r011000101 2r000011010] :player-to-move 1})))
         ; Win or lose possible
         (is (.contains [0 1]
                        (simulate mock-is-terminal?
@@ -548,7 +548,7 @@
                                  mock-valid-moves
                                  p-random-gen
                                  mock-apply-move-to-state
-                                 {:board [2r110000101 2r000011010] :current-player 1})))
+                                 {:board [2r110000101 2r000011010] :player-to-move 1})))
         ; Terminal states
         ; ---------------
         ; Terminal state: win player 1
@@ -557,36 +557,36 @@
                            mock-valid-moves
                            p-random-gen
                            mock-apply-move-to-state
-                           {:board [2r110100101 2r001011010] :current-player 1})))
+                           {:board [2r110100101 2r001011010] :player-to-move 1})))
         ; Terminal state: draw
         (is (= nil (simulate mock-is-terminal?
                              mock-check-win
                              mock-valid-moves
                              p-random-gen
                              mock-apply-move-to-state
-                             {:board [2r011100101 2r100011010] :current-player 1})))
+                             {:board [2r011100101 2r100011010] :player-to-move 1})))
         ; Terminal state: lose (player 2 wins)
         (is (= 1 (simulate mock-is-terminal?
                            mock-check-win
                            mock-valid-moves
                            p-random-gen
                            mock-apply-move-to-state
-                           {:board [2r011000101 2r000111010] :current-player 0})))))
+                           {:board [2r011000101 2r000111010] :player-to-move 0})))))
 
 (deftest is-path-valid-test
     (let [tree {:move 2r000001000
                 :state {:board [2r010000101 2r000011010]
-                        :current-player 0}
+                        :player-to-move 0}
                 :num-rollouts 4
                 :score 2
                 :moves [{:move 2r100000000
                          :state {:board [2r110000101 2r000011010]
-                                 :current-player 1}
+                                 :player-to-move 1}
                          :num-rollouts 2
                          :score 1
                          :moves [{:move 2r001000000
                                   :state {:board [2r110000101 2r001011010]
-                                          :current-player 0}
+                                          :player-to-move 0}
                                   :num-rollouts 0
                                   :score 0
                                   :moves []}]}]}]
@@ -600,119 +600,119 @@
 (deftest backprop-test
     (let [initial-state {:move 2r000001000
                          :state {:board [2r010000101 2r000011010]
-                                 :current-player 0}
+                                 :player-to-move 0}
                          :num-rollouts 4
                          :score 2
                          :moves [{:move 2r001000000
                                  :state {:board [2r011000101 2r000011010]
-                                         :current-player 1}
+                                         :player-to-move 1}
                                  :num-rollouts 1
                                  :score 0
                                  :moves []}
                                  {:move 2r100000000
                                   :state {:board [2r110000101 2r000011010]
-                                          :current-player 1}
+                                          :player-to-move 1}
                                   :num-rollouts 2
                                   :score 1
                                   :moves [{:move 2r000100000
                                            :state {:board [2r110000101 2r000111010]
-                                                   :current-player 0}
+                                                   :player-to-move 0}
                                            :num-rollouts 1
                                            :score 0
                                            :moves []}
                                           ; This is the leaf node to backprop from
                                           {:move 2r001000000
                                            :state {:board [2r110000101 2r001011010]
-                                                   :current-player 0}
+                                                   :player-to-move 0}
                                            :num-rollouts 0
                                            :score 0
                                            :moves []}]}]}]
         (is (= {:move 2r000001000
                 :state {:board [2r010000101 2r000011010]
-                        :current-player 0}
+                        :player-to-move 0}
                 :num-rollouts 5
                 :score 1
                 :moves [{:move 2r001000000
                          :state {:board [2r011000101 2r000011010]
-                                 :current-player 1}
+                                 :player-to-move 1}
                          :num-rollouts 1
                          :score 0
                          :moves []}
                         {:move 2r100000000
                          :state {:board [2r110000101 2r000011010]
-                                 :current-player 1}
+                                 :player-to-move 1}
                          :num-rollouts 3
                          :score 2
                          :moves [{:move 2r000100000
                                   :state {:board [2r110000101 2r000111010]
-                                          :current-player 0}
+                                          :player-to-move 0}
                                   :num-rollouts 1
                                   :score 0
                                   :moves []}
                                  ; This is the leaf node to backprop from
                                  {:move 2r001000000
                                   :state {:board [2r110000101 2r001011010]
-                                          :current-player 0}
+                                          :player-to-move 0}
                                   :num-rollouts 1
                                   :score -1
                                   :moves []}]}]}
                (backprop 0 [2r100000000 2r001000000] initial-state 1)))
         (is (= {:move 2r000001000
                 :state {:board [2r010000101 2r000011010]
-                        :current-player 0}
+                        :player-to-move 0}
                 :num-rollouts 5
                 :score 2
                 :moves [{:move 2r001000000
                          :state {:board [2r011000101 2r000011010]
-                                 :current-player 1}
+                                 :player-to-move 1}
                          :num-rollouts 1
                          :score 0
                          :moves []}
                         {:move 2r100000000
                          :state {:board [2r110000101 2r000011010]
-                                 :current-player 1}
+                                 :player-to-move 1}
                          :num-rollouts 3
                          :score 1
                          :moves [{:move 2r000100000
                                   :state {:board [2r110000101 2r000111010]
-                                          :current-player 0}
+                                          :player-to-move 0}
                                   :num-rollouts 1
                                   :score 0
                                   :moves []}
                                  ; This is the leaf node to backprop from
                                  {:move 2r001000000
                                   :state {:board [2r110000101 2r001011010]
-                                          :current-player 0}
+                                          :player-to-move 0}
                                   :num-rollouts 1
                                   :score 0
                                   :moves []}]}]}
                (backprop nil [2r100000000 2r001000000] initial-state 1)))
         (is (= {:move 2r000001000
                 :state {:board [2r010000101 2r000011010]
-                        :current-player 0}
+                        :player-to-move 0}
                 :num-rollouts 5
                 :score 3
                 :moves [{:move 2r001000000
                          :state {:board [2r011000101 2r000011010]
-                                 :current-player 1}
+                                 :player-to-move 1}
                          :num-rollouts 1
                          :score 0
                          :moves []}
                         {:move 2r100000000
                          :state {:board [2r110000101 2r000011010]
-                                 :current-player 1}
+                                 :player-to-move 1}
                          :num-rollouts 3
                          :score 0
                          :moves [{:move 2r000100000
                                   :state {:board [2r110000101 2r000111010]
-                                          :current-player 0}
+                                          :player-to-move 0}
                                   :num-rollouts 1
                                   :score 0
                                   :moves []}
                                  ; This is the leaf node to backprop from
                                  {:move 2r001000000
                                   :state {:board [2r110000101 2r001011010]
-                                          :current-player 0}
+                                          :player-to-move 0}
                                   :num-rollouts 1
                                   :score 1
                                   :moves []}]}]}

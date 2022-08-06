@@ -40,9 +40,9 @@
                         (bit-or (nth bitboards player) move)))
         bitboards))
 
-(defn apply-move-to-state [{:keys [board current-player]} move]
-    {:board          (apply-move board current-player move)
-     :current-player (mod (inc current-player) (count board))})
+(defn apply-move-to-state [{:keys [board player-to-move]} move]
+    {:board          (apply-move board player-to-move move)
+     :player-to-move (mod (inc player-to-move) (count board))})
 
 (defn is-full [bitboards]
     (zero? (bit-xor board-area
@@ -76,7 +76,7 @@
 
 
 (defn make-random-agent [get-valid-moves-list]
-    (fn [{:keys [board current-player]}]
+    (fn [{:keys [board player-to-move]}]
         (rand-nth (get-valid-moves-list board))))
 
 ; Computation budget = number of iterations to run MCTS for
@@ -94,15 +94,15 @@
 (defn play-game [agents initial-board]
     (loop [history [initial-board]]
         (let [turn-number       (dec (count history))
-              current-player    (rem turn-number (count agents))
+              player-to-move    (rem turn-number (count agents))
               current-bitboards (nth history turn-number)
-              current-state     {:board current-bitboards :current-player current-player}
-              move              ((nth agents current-player) current-state)
-              new-bitboards     (apply-move current-bitboards current-player move)
+              current-state     {:board current-bitboards :player-to-move player-to-move}
+              move              ((nth agents player-to-move) current-state)
+              new-bitboards     (apply-move current-bitboards player-to-move move)
               new-history       (conj history new-bitboards)
               win-status        (check-win new-bitboards)]
             (println (format "Turn #%d" turn-number))
-            (println (format "Current player: %d" current-player))
+            (println (format "Current player: %d" player-to-move))
             (println "New board:")
             (print-game-state new-bitboards)
             (newline)
@@ -118,11 +118,11 @@
 (defn play-game-result [agents initial-board]
     (loop [history [initial-board]]
         (let [turn-number       (dec (count history))
-              current-player    (rem turn-number (count agents))
+              player-to-move    (rem turn-number (count agents))
               current-bitboards (nth history turn-number)
-              current-state     {:board current-bitboards :current-player current-player}
-              move              ((nth agents current-player) current-state)
-              new-bitboards     (apply-move current-bitboards current-player move)
+              current-state     {:board current-bitboards :player-to-move player-to-move}
+              move              ((nth agents player-to-move) current-state)
+              new-bitboards     (apply-move current-bitboards player-to-move move)
               new-history       (conj history new-bitboards)
               win-status        (check-win new-bitboards)]
             (if (is-terminal? new-bitboards)
@@ -167,12 +167,12 @@
 
 
 (defn -main [& args]
-    (println "Testing for 1000 games:")
-    (println "Player 0 - random moves")
+    (println "Testing for 1,000 games:")
+    (println "Player 0 - mcts-agent: exploration 1.2 iterations 1000")
     (println "Player 1 - mcts-agent: exploration 1.2 iterations 1000")
-    (println (play-n-games [(make-random-agent get-valid-moves-list)
+    (println (play-n-games [(configure-mcts-agent 0 1.2 1000)
                             (configure-mcts-agent 1 1.2 1000)]
                            1000))
-
-    (println "Playing a game and printing visual info:")
-    (play-game-print-history))
+    ;; (println "Playing a game and printing visual info:")
+    ;; (play-game-print-history)
+    )
