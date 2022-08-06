@@ -4,6 +4,7 @@
     (:use constants))
 
 
+; TO-DO: Return a string instead of printing and add tests
 (defn print-game-state [bitboards]
     (doseq [[i player-bitboard] (map-indexed vector bitboards)]
         (println (str (format "player %d: " i)
@@ -16,6 +17,7 @@
 ; If no player occupies the square at index, return -1
 ; If a collision is present i.e. if for some reason multiple player's bitboards
 ; occupy the same square, use the first player found
+; TO-DO: consider returning nil instead of -1 for no square owner
 (defn square-owner [index bitboards]
     (loop [i      0
            owner -1]
@@ -74,7 +76,7 @@
     (create-row-separator (quot board-size width) (+ num-extra-padding 3)))
 
 
-; Uses a chess-based coordinate system,
+; Uses a chess-based indexing system,
 ; i.e. print the rows in reverse order
 ; e.g. for a standard tic-tac-toe board, coordinates look like:
 ;  6 | 7 | 8
@@ -83,6 +85,7 @@
 ; ---+---+---
 ;  0 | 1 | 2
 ; Warning: I haven't tested this for other board dimensions
+; TO-DO: Return a string instead of printing and add tests
 (defn print-board [board-size width bitboards]
     (let [n-rows       (quot (dec board-size)
                              width)

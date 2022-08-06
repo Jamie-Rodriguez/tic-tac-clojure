@@ -14,8 +14,16 @@
     (is (= 2r000000011 (get-valid-moves-bitmask [2r000111100 2r111000000]))))
 
 (deftest apply-move-test
-    (is (= [0x01 0] (apply-move [2r0 2r0] 0 0x01)))
-    (is (= [0 0x01] (apply-move [2r0 2r0] 1 0x01))))
+    (is (= [1 0] (apply-move [0 0] 0 1)))
+    (is (= [0 1] (apply-move [0 0] 1 1))))
+
+; Should we reject the entire move, or only the out of bounds moves in the bitmask?
+; Only rejecting the out of bounds moves for now
+(deftest apply-move-out-of-bounds-test
+    (is (= [0 1] (apply-move [0 0] 1 2r1000000001))))
+
+(deftest apply-move-already-occupied-test
+    (is (= [0 1] (apply-move [0 1] 0 1))))
 
 (deftest apply-move-to-state-test
     (is (= {:board [2r100010010 2r011000101] :current-player 0}
@@ -27,21 +35,13 @@
                                  :current-player 0}
                                 2r000001000))))
 
-; Should we reject the entire move, or only the out of bounds moves in the bitmask?
-; Only rejecting the out of bounds moves for now
-(deftest apply-move-out-of-bounds-test
-    (is (= [0 0x01] (apply-move [0 0] 1 2r1000000001))))
-
-(deftest apply-move-already-occupied-test
-    (is (= [0 0x01] (apply-move [0 0x01] 0 0x01))))
-
 (deftest is-full-test
-    (is (= false (is-full [2r001001001 0x00])))
+    (is (= false (is-full [2r001001001 0])))
     (is (= true  (is-full [2r001001001 2r110110110]))))
 
 (deftest check-win-test
-    (is (= 0   (check-win [2r001001001        0x00])))
-    (is (= 1   (check-win [0x00        2r111000000])))
+    (is (= 0   (check-win [2r001001001           0])))
+    (is (= 1   (check-win [0           2r111000000])))
     (is (= nil (check-win [2r000001001 2r000000110]))))
 
 (deftest is-terminal-test
