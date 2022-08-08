@@ -3,7 +3,6 @@
     (:use [clojure.pprint :only (cl-format)])
     (:use constants))
 
-
 ; TO-DO: Return a string instead of printing and add tests
 (defn print-game-state [bitboards]
     (doseq [[i player-bitboard] (map-indexed vector bitboards)]

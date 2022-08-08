@@ -3,9 +3,10 @@
     (:use [clojure.string :only (join)])
     (:use [clojure.pprint :only (cl-format)])
     (:use constants)
-    (:use print)
+    (:require [print :refer [print-game-state
+                             print-board
+                             square-owner]])
     (:use [mcts :only (make-mcts-agent)]))
-
 
 ; Uses a modified version of Brian Kernighan’s Algorithm.
 ; Instead of just counting the number of set bits, writes the set bits into a list.
@@ -73,6 +74,36 @@
     (let [valid-moves-bitmask (get-valid-moves-bitmask bitboards)]
         (when (and (pos-int? valid-moves-bitmask) (not (is-terminal? bitboards)))
             (separate-bitboard valid-moves-bitmask))))
+
+
+(defn one-d-to-2-d [i board-width]
+    [(int (Math/floor (/ i board-width)))
+     (rem i board-width)])
+
+(def one-plane-encoding { :not-current-player -1
+                          :empty               0
+                          :current-player      1 })
+
+(defn state-to-one-plane-encoding [{:keys [board player-to-move]}]
+    (loop [i        0
+           encoded []]
+        (if (>= i board-size)
+            encoded
+            (let [[r c]  (one-d-to-2-d i width)
+                  square (square-owner i board)
+                  value  (cond (= square player-to-move)
+                                   (:current-player one-plane-encoding)
+                               ; From square-owner, -1 = empty square
+                               (not= square -1)
+                                   (:not-current-player one-plane-encoding)
+                               :else
+                                   (:empty one-plane-encoding))]
+                (recur (inc i)
+                       (if (zero? (mod i width))
+                           ; new row
+                           (conj encoded [value])
+                           ; update existing row (append new value)
+                           (assoc encoded r (conj (nth encoded r) value))))))))
 
 
 (defn make-random-agent [get-valid-moves-list]
@@ -167,12 +198,12 @@
 
 
 (defn -main [& args]
-    (println "Testing for 1,000 games:")
-    (println "Player 0 - mcts-agent: exploration 1.2 iterations 1000")
-    (println "Player 1 - mcts-agent: exploration 1.2 iterations 1000")
-    (println (play-n-games [(configure-mcts-agent 0 1.2 1000)
-                            (configure-mcts-agent 1 1.2 1000)]
-                           1000))
-    ;; (println "Playing a game and printing visual info:")
-    ;; (play-game-print-history)
+    ;; (println "Testing for 1,000 games:")
+    ;; (println "Player 0 - mcts-agent: exploration 1.2 iterations 1000")
+    ;; (println "Player 1 - mcts-agent: exploration 1.2 iterations 1000")
+    ;; (println (play-n-games [(configure-mcts-agent 0 1.2 1000)
+    ;;                         (configure-mcts-agent 1 1.2 1000)]
+    ;;                        1000))
+    (println "Playing a game and printing visual info:")
+    (play-game-print-history)
     )

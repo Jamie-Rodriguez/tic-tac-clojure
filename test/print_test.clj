@@ -2,18 +2,15 @@
     (:use clojure.test)
     (:use print))
 
-
 (deftest square-owner-test
-    (is (= 0  (square-owner 0 [2r000000101 2r000000110])))
-    (is (= 1  (square-owner 1 [2r000000101 2r000000110])))
-    (is (= 0  (square-owner 2 [2r000000101 2r000000110])))
+    (is (=  0 (square-owner 0 [2r000000101 2r000000110])))
+    (is (=  1 (square-owner 1 [2r000000101 2r000000110])))
+    (is (=  0 (square-owner 2 [2r000000101 2r000000110])))
     (is (= -1 (square-owner 3 [2r000000101 2r000000110]))))
 
 (deftest game-state-to-string-test
-    (is (= "XOXOX-XOO" (game-state-to-string 9
-                                             ["O" "X"]
-                                             [2r110001010 2r001010101]))))
-
+    (is (= "XOXOX-XOO"
+           (game-state-to-string 9 ["O" "X"] [2r110001010 2r001010101]))))
 
 ; This actually fails for n=1000 (returns 2 instead of 3), due to rounding error.
 ; But I don't expect anyone to create a board with 1000 squares...
