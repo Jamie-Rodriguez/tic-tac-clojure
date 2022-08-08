@@ -2,10 +2,10 @@
     (:gen-class))
 
 ; Tree node schema:
-; state
-; num-rollouts
-; score
-; moves
+;     state
+;     num-rollouts
+;     score
+;     moves
 
 ; Although you could calculate the node statistics by populating them back up
 ; recursively from the leaf nodes, for a large tree this will be quite

@@ -2,7 +2,11 @@
     (:gen-class)
     (:use [clojure.string :only (join)])
     (:use [clojure.pprint :only (cl-format)])
-    (:use constants)
+    (:require [constants :refer [board-area
+                                 board-size
+                                 width
+                                 three-in-a-row
+                                 new-game]])
     (:require [print :refer [print-game-state
                              print-board
                              square-owner]])

@@ -1,7 +1,9 @@
 (ns print
     (:gen-class)
     (:use [clojure.pprint :only (cl-format)])
-    (:use constants))
+    (:require [constants :refer [board-size
+                                 player-piece-symbols
+                                 width]]))
 
 ; TO-DO: Return a string instead of printing and add tests
 (defn print-game-state [bitboards]
