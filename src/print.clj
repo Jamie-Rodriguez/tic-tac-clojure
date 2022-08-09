@@ -1,5 +1,6 @@
 (ns print
     (:gen-class)
+    (:use [clojure.string :only (join)])
     (:use [clojure.pprint :only (cl-format)])
     (:require [constants :refer [board-size
                                  player-piece-symbols
@@ -45,6 +46,18 @@
                             (nth player-piece-symbols
                                  (square-owner i bitboards))
                             "-"))))))
+
+(defn bitboards-to-string [bitboards]
+    (str "["
+         (join " "
+               (map (fn [bitboard] (cl-format nil
+                                              (str "~" board-size ",'0B")
+                                              bitboard))
+               bitboards))
+         "]"))
+
+(defn history-to-string [history]
+    (map bitboards-to-string history))
 
 
 ; Used to calculate how much padding is required on numbers

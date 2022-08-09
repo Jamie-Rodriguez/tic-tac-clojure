@@ -1,7 +1,5 @@
 (ns engine
     (:gen-class)
-    (:use [clojure.string :only (join)])
-    (:use [clojure.pprint :only (cl-format)])
     (:require [constants :refer [board-area
                                  board-size
                                  width
@@ -9,7 +7,8 @@
                                  new-game]])
     (:require [print :refer [print-game-state
                              print-board
-                             square-owner]])
+                             bitboards-to-string
+                             history-to-string]])
     (:use [mcts :only (make-mcts-agent)]))
 
 ; Uses a modified version of Brian Kernighan’s Algorithm.
@@ -80,36 +79,6 @@
             (separate-bitboard valid-moves-bitmask))))
 
 
-(defn one-d-to-2-d [i board-width]
-    [(int (Math/floor (/ i board-width)))
-     (rem i board-width)])
-
-(def one-plane-encoding { :not-current-player -1
-                          :empty               0
-                          :current-player      1 })
-
-(defn state-to-one-plane-encoding [{:keys [board player-to-move]}]
-    (loop [i        0
-           encoded []]
-        (if (>= i board-size)
-            encoded
-            (let [[r c]  (one-d-to-2-d i width)
-                  square (square-owner i board)
-                  value  (cond (= square player-to-move)
-                                   (:current-player one-plane-encoding)
-                               ; From square-owner, -1 = empty square
-                               (not= square -1)
-                                   (:not-current-player one-plane-encoding)
-                               :else
-                                   (:empty one-plane-encoding))]
-                (recur (inc i)
-                       (if (zero? (mod i width))
-                           ; new row
-                           (conj encoded [value])
-                           ; update existing row (append new value)
-                           (assoc encoded r (conj (nth encoded r) value))))))))
-
-
 (defn make-random-agent [get-valid-moves-list]
     (fn [{:keys [board player-to-move]}]
         (rand-nth (get-valid-moves-list board))))
@@ -164,18 +133,6 @@
                 win-status
                 (recur new-history)))))
 
-
-(defn bitboards-to-string [bitboards]
-    (str "["
-         (join " "
-               (map (fn [bitboard] (cl-format nil
-                                              (str "~" board-size ",'0B")
-                                              bitboard))
-               bitboards))
-         "]"))
-
-(defn history-to-string [history]
-    (map bitboards-to-string history))
 
 (defn play-game-print-history []
     (let [agents          [(configure-mcts-agent 0 1.2 100)

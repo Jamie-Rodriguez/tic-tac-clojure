@@ -12,6 +12,19 @@
     (is (= "XOXOX-XOO"
            (game-state-to-string 9 ["O" "X"] [2r110001010 2r001010101]))))
 
+(deftest bitboards-to-string-test
+(is (= "[110001010 001010101]"
+       (bitboards-to-string [2r110001010 2r001010101]))))
+
+(deftest history-to-string-test
+    (is (= ["[000000000 000000000]"
+            "[000000001 000000000]"
+            "[000000001 100000000]"]
+           (history-to-string [[2r000000000 2r000000000]
+                               [2r000000001 2r000000000]
+                               [2r000000001 2r100000000]]))))
+
+
 ; This actually fails for n=1000 (returns 2 instead of 3), due to rounding error.
 ; But I don't expect anyone to create a board with 1000 squares...
 (deftest log-10-test
