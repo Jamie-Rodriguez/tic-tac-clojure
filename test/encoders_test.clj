@@ -18,3 +18,9 @@
             [0  0 1]]
            (state-to-one-plane-encoding {:board [2r000010000 2r100000000]
                                          :player-to-move 1}))))
+
+(deftest one-hot-encode-move-test
+    (is (= [[0 0 0]
+            [0 0 1]
+            [0 0 0]]
+           (one-hot-encode-move 2r000100000))))
