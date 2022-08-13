@@ -53,8 +53,8 @@
     (is (= false (is-terminal? [2r000000001 2r000000000]))))
 
 (deftest get-valid-moves-list-test
-    (is (= nil (get-valid-moves-list [2r000011111 2r111100000])))
+    (is (= [] (get-valid-moves-list [2r000011111 2r111100000])))
     (is (= [2r000000010 2r000000100]
            (get-valid-moves-list [2r010110001 2r101001000])))
-    ; Terminal states should return nil
-    (is (= nil (get-valid-moves-list [2r001100001 2r010010010]))))
+    ; Terminal states should return empty list
+    (is (= [] (get-valid-moves-list [2r001100001 2r010010010]))))

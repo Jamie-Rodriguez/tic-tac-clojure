@@ -75,8 +75,9 @@
 
 (defn get-valid-moves-list [bitboards]
     (let [valid-moves-bitmask (get-valid-moves-bitmask bitboards)]
-        (when (and (pos-int? valid-moves-bitmask) (not (is-terminal? bitboards)))
-            (separate-bitboard valid-moves-bitmask))))
+        (if (and (pos-int? valid-moves-bitmask) (not (is-terminal? bitboards)))
+            (separate-bitboard valid-moves-bitmask)
+            [])))
 
 
 (defn make-random-agent [get-valid-moves-list]

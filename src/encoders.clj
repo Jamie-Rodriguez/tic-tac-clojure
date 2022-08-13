@@ -20,7 +20,7 @@
             (let [[r c]  (one-d-to-2-d i width)
                   square (square-owner i board)
                   value  (cond (= square player-to-move)
-                                  (:current-player one-plane-encoding)
+                                   (:current-player one-plane-encoding)
                                ; From square-owner, -1 = empty square
                                (not= square -1)
                                    (:not-current-player one-plane-encoding)
