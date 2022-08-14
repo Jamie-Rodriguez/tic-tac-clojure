@@ -18,7 +18,7 @@ clj --main engine
 Tests
 =====
 
-To run the Cognitect Labs test runner using the `test` alias:
+To run unit tests using [Cloverage](https://github.com/cloverage/cloverage), use the `test` alias:
 
 ```shell
 clj -Mtest
@@ -41,6 +41,7 @@ From there you can execute the compiled `.jar` with
 java -jar target/tic-tac-clojure-1.0.11-standalone.jar
 ```
 
+
 Game AI
 =======
 
@@ -50,7 +51,7 @@ The algorithm uses two main hyperparameters; *number of iterations* and the *exp
 
 The *number of iterations* parameter behaves linearly with respect to performance - the more iterations that can be run, the greater the performance - as MCTS has been proven to converge to optimal play as *number of iterations* approaches infinity.
 
-However the *exploration* parameter, used to balance the exploration - exploitation tradeoff, is not so simple. The value for optimal play would need to experimentally determined. I wanted to run some experiments to help picture what the function mapping *exploration* `->` performance looks like.
+However the *exploration* parameter, used to balance the exploration - exploitation tradeoff, is not so simple. The value for optimal play would need to experimentally determined. I wanted to run some experiments to help picture what the function mapping `exploration -> performance` looks like.
 
 I ran an experiment for a MCTS agent with *number of iterations* fixed at 1000 and varying the *exploration* parameter to search for the optimal value.
 
@@ -94,6 +95,7 @@ I then decided to search that area with a higher granularity to see if there was
 Surprisingly there didn't seem to be much difference between the values. The difference between the best and worst win-percentage metric was less than 0.4%!
 
 From these results the range `1.10 <= exploration <= 1.20` performed a little better than the rest, but further testing would be needed to confirm this.
+
 
 To-Do
 =====

@@ -1,9 +1,11 @@
 {:paths ["src"]
- :deps    {org.clojure/clojure {:mvn/version "1.10.1"}}
+ :deps {org.clojure/clojure {:mvn/version "1.11.1"}}
  :aliases {:test {:extra-paths ["test"]
-                  :extra-deps {com.cognitect/test-runner {
-                    :git/url "https://github.com/cognitect-labs/test-runner.git"
-                    :sha "209b64504cb3bd3b99ecfec7937b358a879f55c1"}}
-                  :main-opts ["-m" "cognitect.test-runner"]}
-           :build {:deps {io.github.clojure/tools.build {:tag "v0.7.2" :sha "0361dde"}}
+                  :extra-deps {cloverage/cloverage {:mvn/version "1.2.4"}}
+                  :main-opts ["-m" "cloverage.coverage"
+                              "--src-ns-path" "src"
+                              "--test-ns-path" "test"
+                              "--no-html"]}
+           :build {:deps {io.github.clojure/tools.build {:tag "v0.8.3"
+                                                         :sha "0d20256c40b5a6b6adbcbdf7d0c52cf9e22e994d"}}
                    :ns-default build}}}
