@@ -4,8 +4,7 @@
                   :extra-deps {cloverage/cloverage {:mvn/version "1.2.4"}}
                   :main-opts ["-m" "cloverage.coverage"
                               "--src-ns-path" "src"
-                              "--test-ns-path" "test"
-                              "--no-html"]}
+                              "--test-ns-path" "test"]}
            :build {:deps {io.github.clojure/tools.build {:tag "v0.8.3"
                                                          :sha "0d20256c40b5a6b6adbcbdf7d0c52cf9e22e994d"}}
                    :ns-default build}}}

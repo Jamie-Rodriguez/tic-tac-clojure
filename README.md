@@ -14,6 +14,8 @@ Some code for initialising an example game is in the `main` function of the `eng
 clj --main engine
 ```
 
+Cloverage outputs high-level coverage data to the console, but then writes a more detailed HTML coverage report to `target/coverage/index.html` for closer examination.
+
 
 Tests
 =====
