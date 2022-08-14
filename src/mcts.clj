@@ -25,6 +25,8 @@
 
 (defn pick-best-move [exploration node]
     (let [moves                 (:moves node)
+          ; TO-DO: We could just grab this from (node :num-rollouts)...
+          ; is there a risk that (node :num-rollouts) isn't up to date?
           total-rollouts-parent (reduce (fn [sum child]
                                             (+ sum (:num-rollouts child)))
                                         0
@@ -34,18 +36,12 @@
         ; but Clojure's 'reduce' doesn't keep track of the index >:^(
         (loop [current-node  0
                best-uct-node 0]
-            (if (< current-node (count moves))
+            (if (>= current-node (count moves))
+                best-uct-node
                 (if (> (get-uct (nth moves current-node))
                        (get-uct (nth moves best-uct-node)))
                     (recur (inc current-node) current-node)
-                    (recur (inc current-node) best-uct-node))
-                best-uct-node))))
-
-(defn get-unexplored-moves [get-valid-moves {:keys [state moves]}]
-    (let [valid-moves    (get-valid-moves (state :board))
-          explored-moves (map (fn [move] (move :move)) moves)]
-        (not-empty (filter (fn [move] (not (.contains explored-moves move)))
-                           valid-moves))))
+                    (recur (inc current-node) best-uct-node))))))
 
 (defn pick-unexplored-move [get-random-int get-valid-moves is-terminal? {:keys [state moves]}]
     (when-not (is-terminal? (:board state))
@@ -64,6 +60,10 @@
                       (count (current-node :moves)))
                 (is-terminal? (get-in current-node [:state :board])))
             path
+            ; Here we just grab (current-node :num-rollouts) instead of
+            ; calculating it from the child moves - opposite of 'pick-best-move'
+            ; If there is no possibility of (current-node :num-rollouts) being
+            ; out of date, then it is better to do this
             (let [get-uct-value (partial uct exploration (current-node :num-rollouts))
                   indexed-ucts (map-indexed (fn [i node] {:index i
                                                           :uct (get-uct-value node)})
@@ -148,7 +148,7 @@
 ; Use a depth-first search style recursion to drill down the tree along 'path',
 ; returning updated nodes as the call-stack collapses back up the tree to the
 ; root node
-; TO-DO: Change backprop to not update the score of the root node
+; TO-DO: Change backprop to NOT update the score of the *root* node
 ; TO-DO: Protect against invalid path
 ; If not all the moves on 'path' exist in the tree, will throw a null pointer
 ; exception when trying to access the non-existent current node, which = null

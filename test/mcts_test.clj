@@ -3,14 +3,20 @@
     (:use mcts))
 
 
+; I have provided full examples of a realistic MCTS tree state (using
+; tic-tac-toe as the implementation) for tests in an effort to provide a
+; greater and realistic context that may help in reasoning and debugging.
+; However I have commented out the strictly unnecesary properties so that you
+; can also see the minimum set of properties required for each function.
+
 (deftest uct-test
     (is (= 2.5 (uct 1                ; Exploration parameter
                     (Math/exp 8)     ; total rollouts on parent node
                     {:num-rollouts 2 ; Node statistics
                      :score 1})))
-    (is (= ##Inf (uct 1                 ; Exploration parameter
-                      (Math/exp 8)      ; total rollouts on parent node
-                      {:num-rollouts 0  ; Node statistics
+    (is (= ##Inf (uct 1                ; Exploration parameter
+                      (Math/exp 8)     ; total rollouts on parent node
+                      {:num-rollouts 0 ; Node statistics
                        :score 0}))))
 
 (deftest pick-best-move-test
@@ -25,52 +31,16 @@
                                           {:num-rollouts 0
                                            :score 0}]}))))
 
-(deftest get-unexplored-moves-test
-    (let [mock-get-valid-moves (fn [board] [2r001000000 2r100000000])]
-        (is (= nil
-               (get-unexplored-moves mock-get-valid-moves
-                                     {:state {:board [2r010100101 2r000011010]
-                                              :player-to-move 1}
-                                      :move 2r000100000
-                                      :num-rollouts 5
-                                      :score 2
-                                      :moves [{:move 2r001000000
-                                               :state {:board [2r010100101 2r001011010]
-                                                       :player-to-move 0}
-                                               :num-rollouts 2
-                                               :score 2
-                                               :moves []}
-                                              {:move 2r100000000
-                                               :state {:board [2r010100101 2r100011010]
-                                                       :player-to-move 0}
-                                               :num-rollouts 1
-                                               :score 0
-                                               :moves []}]})))
-        (is (= [2r100000000]
-               (get-unexplored-moves mock-get-valid-moves
-                                     {:state {:board [2r010100101 2r000011010]
-                                              :player-to-move 1}
-                                      :move 2r000100000
-                                      :num-rollouts 5
-                                      :score 5
-                                      :moves [{:move 2r001000000
-                                               :state {:board [2r010100101 2r001011010]
-                                                       :player-to-move 0}
-                                               :num-rollouts 5
-                                               :score 5
-                                               :moves []}]})))))
-
 (deftest pick-unexplored-move-test
     (let [; "Random" number generator to pick a move from the valid moves
           mock-random-num  (fn [] 1)
           ; Valid/unexplored moves generator
-          mock-valid-moves (fn [board] (cond
-                                           (= board [2r100010010 2r011000100])
-                                               [2r000100000 2r000001000]
-                                           (= board [2r001110001 2r110001100])
-                                               [2r000000010]
-                                           :else
-                                               []))
+          mock-valid-moves (fn [board] (cond (= board [2r100010010 2r011000100])
+                                                 [2r000100000 2r000001000]
+                                             (= board [2r001110001 2r110001100])
+                                                 [2r000000010]
+                                             :else
+                                                 []))
           is-terminal?     (fn [board] (= board [2r001001101 2r100010010]))]
         ; Not fully explored
         (is (= 2r000001000
@@ -79,15 +49,16 @@
                                      is-terminal?
                                      {:state {:board [2r100010010 2r011000100]
                                               :player-to-move 1}
-                                      :move 2r100000000
-                                      :num-rollouts 2
-                                      :score 1
+                                      ;:move 2r100000000
+                                      ;:num-rollouts 2
+                                      ;:score 1
                                       :moves [{:move 2r000000001
-                                               :state {:board [2r100010010 2r011000101]
-                                                       :player-to-move 0}
-                                               :num-rollouts 2
-                                               :score 1
-                                               :moves []}]})))
+                                               ;:state {:board [2r100010010 2r011000101]
+                                               ;        :player-to-move 0}
+                                               ;:num-rollouts 2
+                                               ;:score 1
+                                               ;:moves []
+                                              }]})))
         ; Fully-explored
         ; Selection should never pick a fully-explored node...
         (is (= nil
@@ -96,15 +67,16 @@
                                      is-terminal?
                                      {:state {:board [2r001110001 2r110001100]
                                               :player-to-move 0}
-                                      :move 2r010000000
-                                      :num-rollouts 2
-                                      :score 0
+                                      ;:move 2r010000000
+                                      ;:num-rollouts 2
+                                      ;:score 0
                                       :moves [{:move 2r000000010
-                                               :state {:board [2r001110011 2r110001100]
-                                                       :player-to-move 1}
-                                               :num-rollouts 1
-                                               :score 0
-                                               :moves []}]})))
+                                               ;:state {:board [2r001110011 2r110001100]
+                                               ;        :player-to-move 1}
+                                               ;:num-rollouts 1
+                                               ;:score 0
+                                               ;:moves []
+                                              }]})))
         ; Terminal state
         (is (= nil
                (pick-unexplored-move mock-random-num
@@ -112,9 +84,9 @@
                                      is-terminal?
                                      {:state {:board [2r001001101 2r100010010]
                                               :player-to-move 1}
-                                      :move 2r000001000
-                                      :num-rollouts 2
-                                      :score 1
+                                      ;:move 2r000001000
+                                      ;:num-rollouts 2
+                                      ;:score 1
                                       :moves []})))))
 
 (deftest select-test
@@ -122,9 +94,9 @@
     ; There are three possible moves to choose from.
     (let [initial-state      {:state {:board [2r010000101 2r000011010]
                                       :player-to-move 0}
-                              :move 2r000001000
+                              ;:move 2r000001000
                               :num-rollouts 5
-                              :score 3
+                              ;:score 3
                               :moves []}
           exploration        1.5
           mock-tie-breaker   (fn [] 1)
@@ -132,9 +104,10 @@
           ; selection drills further down the tree.
           ; Therefore also need to make sure that we can output the valid moves
           ; of the next state
-          mock-valid-moves   (fn [board] (if (= board [2r010000101 2r000011010])
-                                             [2r000100000 2r001000000 2r100000000]
-                                             [2r000100000 2r100000000]))
+          mock-valid-moves   (fn [board]
+                                 (if (= board [2r010000101 2r000011010])
+                                     [2r000100000 2r001000000 2r100000000]
+                                     [2r000100000 2r100000000]))
           mock-is-terminal?  (fn [board] false)]
         ; Test case: no moves have been expanded for root
         ; Select root node for expansion
@@ -152,12 +125,16 @@
                        mock-is-terminal?
                        (assoc initial-state
                               :moves
-                              [{:move 2r000100000
-                                :state {:board [2r010100101 2r000011010]
-                                        :player-to-move 1}
-                                :num-rollouts 5
-                                :score 3
-                                :moves []}]))))
+                              [
+                               ;{
+                                ;:move 2r000100000
+                                ;:state {:board [2r010100101 2r000011010]
+                                ;        :player-to-move 1}
+                                ;:num-rollouts 5
+                                ;:score 3
+                                ;:moves []
+                               ;}
+                               ]))))
         ; Test case: all three moves have been expanded for root,
         ; with same statistics
         ; Resolve tie-break for selection
@@ -168,24 +145,31 @@
                        mock-is-terminal?
                        (assoc initial-state
                               :moves
-                              [{:move 2r000100000
-                                :state {:board [2r010100101 2r000011010]
-                                        :player-to-move 1}
+                              [{
+                                ;:move 2r000100000
+                                ;:state {:board [2r010100101 2r000011010]
+                                ;        :player-to-move 1}
                                 :num-rollouts 1
                                 :score 1
-                                :moves []}
-                               {:move 2r001000000
-                                :state {:board [2r011000101 2r000011010]
-                                        :player-to-move 1}
+                                ;:moves []
+                               }
+                               {
+                                :move 2r001000000
+                                ;:state {:board [2r011000101 2r000011010]
+                                ;        :player-to-move 1}
                                 :num-rollouts 1
                                 :score 1
-                                :moves []}
-                               {:move 2r100000000
-                                :state {:board [2r110000101 2r000011010]
-                                        :player-to-move 1}
+                                ;:moves []
+                               }
+                               {
+                                ;:move 2r100000000
+                                ;:state {:board [2r110000101 2r000011010]
+                                ;        :player-to-move 1}
                                 :num-rollouts 1
                                 :score 1
-                                :moves []}]))))
+                                ;:moves []
+                               }
+                              ]))))
         ; Test case: all three moves have been expanded for root,
         ; with differing statistics
         ; Select move with highest UCT value
@@ -196,24 +180,31 @@
                        mock-is-terminal?
                        (assoc initial-state
                               :moves
-                              [{:move 2r000100000
-                                :state {:board [2r010100101 2r000011010]
-                                        :player-to-move 1}
+                              [
+                               {
+                                ;:move 2r000100000
+                                ;:state {:board [2r010100101 2r000011010]
+                                ;        :player-to-move 1}
                                 :num-rollouts 1
                                 :score 0
-                                :moves []}
-                               {:move 2r001000000
-                                :state {:board [2r011000101 2r000011010]
-                                        :player-to-move 1}
+                                ;:moves []
+                               }
+                               {
+                                :move 2r001000000
+                                ;:state {:board [2r011000101 2r000011010]
+                                ;        :player-to-move 1}
                                 :num-rollouts 2
                                 :score 2
-                                :moves []}
-                               {:move 2r100000000
-                                :state {:board [2r110000101 2r000011010]
-                                        :player-to-move 1}
+                                ;:moves []
+                               }
+                               {
+                                ;:move 2r100000000
+                                ;:state {:board [2r110000101 2r000011010]
+                                ;        :player-to-move 1}
                                 :num-rollouts 2
                                 :score 1
-                                :moves []}]))))
+                                ;:moves []
+                               }]))))
         ; Test case: all three moves have been expanded for root,
         ; with differing statistics
         ; Select move with highest UCT value - which is fully expanded.
@@ -226,81 +217,103 @@
                        mock-is-terminal?
                        (assoc initial-state
                               :moves
-                              [{:move 2r000100000
-                                :state {:board [2r010100101 2r000011010]
-                                        :player-to-move 1}
+                              [{
+                                ;:move 2r000100000
+                                ;:state {:board [2r010100101 2r000011010]
+                                ;        :player-to-move 1}
                                 :num-rollouts 1
                                 :score 0
-                                :moves []}
-                               {:move 2r001000000
-                                :state {:board [2r011000101 2r000011010]
-                                        :player-to-move 1}
+                                ;:moves []
+                               }
+                               {
+                                :move 2r001000000
+                                ;:state {:board [2r011000101 2r000011010]
+                                ;        :player-to-move 1}
                                 :num-rollouts 2
                                 :score 2
                                 ; Make stats of these two moves identical, to
-                                ; check that select() intelligently picks the
+                                ; test that select() intelligently picks the
                                 ; non-terminal state.
                                 ; (The tie-breaker would otherwise
-                                ; *incorrectly* pick the move at index 1)
-                                :moves [{:move 2r100000000
-                                         :state {:board [2r011000101 2r100011010]
-                                                 :player-to-move 0}
+                                ; *incorrectly* pick the move at index 0)
+                                :moves [{
+                                         ;:move 2r100000000
+                                         ;:state {:board [2r011000101 2r100011010]
+                                         ;        :player-to-move 0}
                                          :num-rollouts 1
                                          :score 0
-                                         :moves []}
+                                         ;:moves []
+                                        }
                                         ; This is a terminal state.
                                         ; We should not be choosing terminal
                                         ; states for selection
-                                        {:move 2r000100000
-                                         :state {:board [2r011000101 2r000111010]
-                                                 :player-to-move 0}
+                                        {
+                                         :move 2r000100000
+                                         ;:state {:board [2r011000101 2r000111010]
+                                         ;        :player-to-move 0}
                                          :num-rollouts 1
                                          :score 0
-                                         :moves []}]}
-                               {:move 2r100000000
-                                :state {:board [2r110000101 2r000011010]
-                                        :player-to-move 1}
+                                         ;:moves []
+                                        }]}
+                               {
+                                ;:move 2r100000000
+                                ;:state {:board [2r110000101 2r000011010]
+                                ;        :player-to-move 1}
                                 :num-rollouts 2
                                 :score 1
-                                :moves []}]))))
+                                ;:moves []
+                               }]))))
         ; Test with a tree that causes select() to choose a terminal state (draw)
         (is (= [2r000001000 2r000100000]
                (select 1
                        (fn [] 1)
-                       (fn [board] (cond (= board [2r101010010 2r010000101])
-                                            [2r000001000 2r000100000]
-                                         (= board [2r101010010 2r010001101])
-                                            [2r000100000]
-                                         :else
-                                            []))
-                       (fn [board] (or (= board [2r101011010 2r010100101])
-                                       (= board [2r101110010 2r010001101])))
-                       {:state {:board [2r101010010 2r010000101]
+                       (fn [board]
+                           (cond (= board [2r101010010 2r010000101])
+                                    [2r000001000 2r000100000]
+                                 (= board [2r101010010 2r010001101])
+                                    [2r000100000]
+                                 :else
+                                    []))
+                       (fn [board] (or (= board [2r101011010
+                                                           2r010100101])
+                                                 (= board [2r101110010
+                                                           2r010001101])))
+                       {
+                        :state {:board [2r101010010 2r010000101]
                                 :player-to-move 1}
                         :num-rollouts 4
-                        :score 0
-                        :moves [{:state {:board [2r101010010 2r010100101]
-                                         :player-to-move 0}
-                                 :move 2r000100000
+                        ;:score 0
+                        :moves [{
+                                 ;:state {:board [2r101010010 2r010100101]
+                                 ;        :player-to-move 0}
+                                 ;:move 2r000100000
                                  :num-rollouts 2
                                  :score 0
-                                 :moves [{:state {:board [2r101011010 2r010100101]
-                                                  :player-to-move 1}
-                                          :move 2r000001000
-                                          :num-rollouts 1
-                                          :score 0
-                                          :moves []}]}
-                                {:state {:board [2r101010010 2r010001101]
-                                                 :player-to-move 0}
+                                 ;:moves [{
+                                 ;         :state {:board [2r101011010 2r010100101]
+                                 ;                 :player-to-move 1}
+                                 ;         :move 2r000001000
+                                 ;         :num-rollouts 1
+                                 ;         :score 0
+                                 ;         :moves []
+                                 ;        }]
+                                }
+                                {
+                                 :state {:board [2r101010010 2r010001101]
+                                         :player-to-move 0}
                                  :move 2r000001000
                                  :num-rollouts 2
                                  :score 0
-                                 :moves [{:state {:board [2r101110010 2r010001101]
+                                 :moves [{
+                                          :state {:board [2r101110010 2r010001101]
                                                   :player-to-move 1}
                                           :move 2r000100000
-                                          :num-rollouts 1
-                                          :score 0
-                                          :moves []}]}]})))
+                                          ;:num-rollouts 1
+                                          ;:score 0
+                                          ;:moves []
+                                         }]
+                                }]
+                       })))
         ; TO-DO: Write test with a tree that causes select() to choose a terminal state
         ; where there is a win BUT the board is NOT empty
         ; select() should not drill further down!
@@ -308,128 +321,128 @@
 
 (deftest treewalk-test
     (is (= {:move 2r000000010
-            :state {:board [2r000000001 2r000000010]
-                    :player-to-move 0}
-            :num-rollouts 2
-            :score 1
+            ;:state {:board [2r000000001 2r000000010]
+            ;        :player-to-move 0}
+            ;:num-rollouts 2
+            ;:score 1
             :moves [{:move 2r000000100
-                     :state {:board [2r000000101 2r000000010]
-                             :player-to-move 1}
-                     :num-rollouts 1
-                     :score 1
+                     ;:state {:board [2r000000101 2r000000010]
+                     ;        :player-to-move 1}
+                     ;:num-rollouts 1
+                     ;:score 1
                      :moves []}]}
            (treewalk [2r000000001 2r000000010]
-                     {:state {:board [2r000000000 2r000000000]
-                              :player-to-move 0}
-                      :move 2r000000000
-                      :num-rollouts 4
-                      :score 3
+                     {:move 2r000000000
+                      ;:state {:board [2r000000000 2r000000000]
+                      ;        :player-to-move 0}
+                      ;:num-rollouts 4
+                      ;:score 3
                       :moves [{:move 2r000000001
-                              :state {:board [2r000000001 2r000000000]
-                                      :player-to-move 1}
-                              :num-rollouts 1
-                              :score 1
+                              ;:state {:board [2r000000001 2r000000000]
+                              ;        :player-to-move 1}
+                              ;:num-rollouts 1
+                              ;:score 1
                               :moves [{:move 2r000000010
-                                       :state {:board [2r000000001 2r000000010]
-                                               :player-to-move 0}
-                                       :num-rollouts 2
-                                       :score 1
+                                       ;:state {:board [2r000000001 2r000000010]
+                                       ;        :player-to-move 0}
+                                       ;:num-rollouts 2
+                                       ;:score 1
                                        :moves [{:move 2r000000100
-                                                :state {:board [2r000000101 2r000000010]
-                                                        :player-to-move 1}
-                                                :num-rollouts 1
-                                                :score 1
+                                                ;:state {:board [2r000000101 2r000000010]
+                                                ;        :player-to-move 1}
+                                                ;:num-rollouts 1
+                                                ;:score 1
                                                 :moves []}]}]}]})))
-    (is (= {:state {:board [2r000000000 2r000000000]
-                    :player-to-move 0}
-            :move 2r000000000
-            :num-rollouts 4
-            :score 3
+    (is (= {:move 2r000000000
+            ;:state {:board [2r000000000 2r000000000]
+            ;        :player-to-move 0}
+            ;:num-rollouts 4
+            ;:score 3
             :moves [{:move 2r000000001
-                     :state {:board [2r000000001 2r000000000]
-                             :player-to-move 1}
-                     :num-rollouts 1
-                     :score 1
+                     ;:state {:board [2r000000001 2r000000000]
+                     ;        :player-to-move 1}
+                     ;:num-rollouts 1
+                     ;:score 1
                      :moves []}]}
            (treewalk []
-                     {:state {:board [2r000000000 2r000000000]
-                              :player-to-move 0}
-                      :move 2r000000000
-                      :num-rollouts 4
-                      :score 3
+                     {:move 2r000000000
+                      ;:state {:board [2r000000000 2r000000000]
+                      ;        :player-to-move 0}
+                      ;:num-rollouts 4
+                      ;:score 3
                       :moves [{:move 2r000000001
-                               :state {:board [2r000000001 2r000000000]
-                                       :player-to-move 1}
-                               :num-rollouts 1
-                               :score 1
+                               ;:state {:board [2r000000001 2r000000000]
+                               ;        :player-to-move 1}
+                               ;:num-rollouts 1
+                               ;:score 1
                                :moves []}]}))))
 
 (deftest replace-node-test
-    (is (= {:state {:board [2r000000000 2r000000000]
-                    :player-to-move 0}
-            :move 2r000000000
-            :num-rollouts 4
-            :score 3
+    (is (= {:move 2r000000000
+            ;:state {:board [2r000000000 2r000000000]
+            ;        :player-to-move 0}
+            ;:num-rollouts 4
+            ;:score 3
             :moves [{:move 2r000000001
-                     :state {:board [2r000000001 2r000000000]
-                             :player-to-move 1}
-                     :num-rollouts 1
-                     :score 1
+                     ;:state {:board [2r000000001 2r000000000]
+                     ;        :player-to-move 1}
+                     ;:num-rollouts 1
+                     ;:score 1
                      :moves [{:move 2r000000010
-                              :state {:board [2r000000001 2r000000010]
-                                      :player-to-move 0}
-                              :num-rollouts 2
-                              :score 1
+                              ;:state {:board [2r000000001 2r000000010]
+                              ;        :player-to-move 0}
+                              ;:num-rollouts 2
+                              ;:score 1
                               :moves [{:move 2r000000100
-                                       :state {:board [2r000000101 2r000000010]
-                                               :player-to-move 1}
-                                       :num-rollouts 1
-                                       :score 1
+                                       ;:state {:board [2r000000101 2r000000010]
+                                       ;        :player-to-move 1}
+                                       ;:num-rollouts 1
+                                       ;:score 1
                                        :moves []}
                                       {:move 2r000001000
-                                       :state {:board [2r000001001 2r000000010]
-                                               :player-to-move 1}
-                                       :num-rollouts 1
-                                       :score 1
+                                       ;:state {:board [2r000001001 2r000000010]
+                                       ;        :player-to-move 1}
+                                       ;:num-rollouts 1
+                                       ;:score 1
                                        :moves []}]}]}]}
-           (replace-node {:state {:board [2r000000000 2r000000000]
-                                  :player-to-move 0}
-                          :move 2r000000000
-                          :num-rollouts 4
-                          :score 3
+           (replace-node {:move 2r000000000
+                          ;:state {:board [2r000000000 2r000000000]
+                          ;        :player-to-move 0}
+                          ;:num-rollouts 4
+                          ;:score 3
                           :moves [{:move 2r000000001
-                                   :state {:board [2r000000001 2r000000000]
-                                           :player-to-move 1}
-                                   :num-rollouts 1
-                                   :score 1
+                                   ;:state {:board [2r000000001 2r000000000]
+                                   ;        :player-to-move 1}
+                                   ;:num-rollouts 1
+                                   ;:score 1
                                    :moves [{:move 2r000000010
-                                            :state {:board [2r000000001 2r000000010]
-                                                    :player-to-move 0}
-                                            :num-rollouts 2
-                                            :score 1
+                                            ;:state {:board [2r000000001 2r000000010]
+                                            ;        :player-to-move 0}
+                                            ;:num-rollouts 2
+                                            ;:score 1
                                             :moves [{:move 2r000000100
-                                                     :state {:board [2r000000101 2r000000010]
-                                                             :player-to-move 1}
-                                                     :num-rollouts 1
-                                                     :score 1
+                                                     ;:state {:board [2r000000101 2r000000010]
+                                                     ;        :player-to-move 1}
+                                                     ;:num-rollouts 1
+                                                     ;:score 1
                                                      :moves []}]}]}]}
                          [2r000000001 2r000000010]
                          {:move 2r000000010
-                          :state {:board [2r000000001 2r000000010]
-                                  :player-to-move 0}
-                          :num-rollouts 2
-                          :score 1
+                          ;:state {:board [2r000000001 2r000000010]
+                          ;        :player-to-move 0}
+                          ;:num-rollouts 2
+                          ;:score 1
                           :moves [{:move 2r000000100
-                                   :state {:board [2r000000101 2r000000010]
-                                           :player-to-move 1}
-                                   :num-rollouts 1
-                                   :score 1
+                                   ;:state {:board [2r000000101 2r000000010]
+                                   ;        :player-to-move 1}
+                                   ;:num-rollouts 1
+                                   ;:score 1
                                    :moves []}
                                   {:move 2r000001000
-                                   :state {:board [2r000001001 2r000000010]
-                                           :player-to-move 1}
-                                   :num-rollouts 1
-                                   :score 1
+                                   ;:state {:board [2r000001001 2r000000010]
+                                   ;        :player-to-move 1}
+                                   ;:num-rollouts 1
+                                   ;:score 1
                                    :moves []}]}))))
 
 (deftest simulate-test
@@ -575,20 +588,20 @@
 
 (deftest is-path-valid-test
     (let [tree {:move 2r000001000
-                :state {:board [2r010000101 2r000011010]
-                        :player-to-move 0}
-                :num-rollouts 4
-                :score 2
+                ;:state {:board [2r010000101 2r000011010]
+                ;        :player-to-move 0}
+                ;:num-rollouts 4
+                ;:score 2
                 :moves [{:move 2r100000000
-                         :state {:board [2r110000101 2r000011010]
-                                 :player-to-move 1}
-                         :num-rollouts 2
-                         :score 1
+                         ;:state {:board [2r110000101 2r000011010]
+                         ;        :player-to-move 1}
+                         ;:num-rollouts 2
+                         ;:score 1
                          :moves [{:move 2r001000000
-                                  :state {:board [2r110000101 2r001011010]
-                                          :player-to-move 0}
-                                  :num-rollouts 0
-                                  :score 0
+                                  ;:state {:board [2r110000101 2r001011010]
+                                  ;        :player-to-move 0}
+                                  ;:num-rollouts 0
+                                  ;:score 0
                                   :moves []}]}]}]
         (is (= true (is-path-valid? tree [2r100000000 2r001000000])))
         (is (= false (is-path-valid? tree [2r100000000 2r000000001])))
