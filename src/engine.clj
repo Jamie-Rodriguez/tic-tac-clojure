@@ -79,8 +79,7 @@
 
 
 (defn make-random-agent [get-valid-moves-list]
-    (fn [{:keys [board player-to-move]}]
-        (rand-nth (get-valid-moves-list board))))
+    (fn [state] (rand-nth (get-valid-moves-list state))))
 
 ; Computation budget = number of iterations to run MCTS for
 (defn configure-mcts-agent [player-index exploration computation-budget]
@@ -103,13 +102,12 @@
               move              ((nth agents player-to-move) current-state)
               new-bitboards     (apply-move current-bitboards player-to-move move)
                                 ; We don't actually use the new player-to-move
-                                ; as we calculate the current player each turn.
                                 ; Only including it for completeness' sake
               new-state         {:board new-bitboards
                                  :player-to-move (rem (inc turn-number) (count agents))}
               new-history       (conj history new-bitboards)
-              win-status        (check-win new-bitboards)]
-            (println (format "Turn #%d" turn-number))
+              win-status        (check-win new-state)]
+            (println (format "Turn #%d" (inc turn-number)))
             (println (format "Current player: %d" player-to-move))
             (println "New board:")
             (print-game-state new-bitboards)
@@ -132,12 +130,11 @@
               move              ((nth agents player-to-move) current-state)
               new-bitboards     (apply-move current-bitboards player-to-move move)
                                 ; We don't actually use the new player-to-move
-                                ; as we calculate the current player each turn.
                                 ; Only including it for completeness' sake
               new-state         {:board new-bitboards
                                  :player-to-move (rem (inc turn-number) (count agents))}
               new-history       (conj history new-bitboards)
-              win-status        (check-win new-bitboards)]
+              win-status        (check-win new-state)]
             (if (is-terminal? new-state)
                 win-status
                 (recur new-history)))))
