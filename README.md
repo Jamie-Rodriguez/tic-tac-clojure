@@ -14,8 +14,6 @@ Some code for initialising an example game is in the `main` function of the `eng
 clj --main engine
 ```
 
-Cloverage outputs high-level coverage data to the console, but then writes a more detailed HTML coverage report to `target/coverage/index.html` for closer examination.
-
 
 Tests
 =====
@@ -25,6 +23,8 @@ To run unit tests using [Cloverage](https://github.com/cloverage/cloverage), use
 ```shell
 clj -Mtest
 ```
+
+Cloverage outputs high-level coverage data to the console, but then writes a more detailed HTML coverage report to `target/coverage/index.html` for closer examination.
 
 
 Building a Standalone `.jar` File
