@@ -6,7 +6,7 @@
 ; I have provided full examples of a realistic MCTS tree state (using
 ; tic-tac-toe as the implementation) for tests in an effort to provide a
 ; greater and realistic context that may help in reasoning and debugging.
-; However I have commented out the strictly unnecesary properties so that you
+; However I have commented out the strictly unnecessary properties so that you
 ; can also see the minimum set of properties required for each function.
 
 (deftest uct-test
@@ -35,13 +35,15 @@
     (let [; "Random" number generator to pick a move from the valid moves
           mock-random-num  (fn [] 1)
           ; Valid/unexplored moves generator
-          mock-valid-moves (fn [board] (cond (= board [2r100010010 2r011000100])
-                                                 [2r000100000 2r000001000]
-                                             (= board [2r001110001 2r110001100])
-                                                 [2r000000010]
-                                             :else
-                                                 []))
-          is-terminal?     (fn [board] (= board [2r001001101 2r100010010]))]
+          mock-valid-moves (fn [{:keys [board]}]
+                               (cond (= board [2r100010010 2r011000100])
+                                         [2r000100000 2r000001000]
+                                     (= board [2r001110001 2r110001100])
+                                         [2r000000010]
+                                     :else
+                                         []))
+          is-terminal?     (fn [{:keys [board]}]
+                               (= board [2r001001101 2r100010010]))]
         ; Not fully explored
         (is (= 2r000001000
                (pick-unexplored-move mock-random-num
@@ -104,11 +106,11 @@
           ; selection drills further down the tree.
           ; Therefore also need to make sure that we can output the valid moves
           ; of the next state
-          mock-valid-moves   (fn [board]
+          mock-valid-moves   (fn [{:keys [board]}]
                                  (if (= board [2r010000101 2r000011010])
                                      [2r000100000 2r001000000 2r100000000]
                                      [2r000100000 2r100000000]))
-          mock-is-terminal?  (fn [board] false)]
+          mock-is-terminal?  (fn [{:keys [board]}] false)]
         ; Test case: no moves have been expanded for root
         ; Select root node for expansion
         (is (= [] (select exploration
@@ -267,14 +269,14 @@
         (is (= [2r000001000 2r000100000]
                (select 1
                        (fn [] 1)
-                       (fn [board]
+                       (fn [{:keys [board]}]
                            (cond (= board [2r101010010 2r010000101])
                                     [2r000001000 2r000100000]
                                  (= board [2r101010010 2r010001101])
                                     [2r000100000]
                                  :else
                                     []))
-                       (fn [board] (or (= board [2r101011010
+                       (fn [{:keys [board]}] (or (= board [2r101011010
                                                            2r010100101])
                                                  (= board [2r101110010
                                                            2r010001101])))
@@ -446,39 +448,41 @@
                                    :moves []}]}))))
 
 (deftest simulate-test
-    (let [mock-is-terminal?        (fn [board] (reduce
-                                                   (fn [found-match? terminal-state]
-                                                       (or found-match? (= board terminal-state)))
-                                                   false
-                                                   [[2r110100101 2r001011010]
-                                                    [2r011100101 2r100011010]
-                                                    [2r011000101 2r000111010]
-                                                    [2r110000101 2r000111010]]))
-          mock-check-win           (fn [board] (cond (= board [2r110100101 2r001011010])
-                                                         0
-                                                     (= board [2r011100101 2r100011010])
-                                                         nil
-                                                     (or (= board [2r110000101 2r000111010])
-                                                         (= board [2r011000101 2r000111010]))
-                                                         1
-                                                     :else
-                                                         "SHOULD NOT HAVE HIT HERE"))
-          mock-valid-moves         (fn [board] (cond (= board [2r010100101 2r000011010])
-                                                         [2r001000000 2r100000000]
-                                                     (= board [2r011000101 2r000011010])
-                                                         [2r000100000 2r100000000]
-                                                     (= board [2r110000101 2r000011010])
-                                                         [2r000100000 2r001000000]
-                                                     (= board [2r010100101 2r001011010])
-                                                         [2r100000000]
-                                                     (= board [2r010100101 2r100011010])
-                                                         [2r001000000]
-                                                     (= board [2r011000101 2r100011010])
-                                                         [2r000100000]
-                                                     (= board [2r110000101 2r001011010])
-                                                         [2r000100000]
-                                                     :else
-                                                         "SHOULD NOT HAVE HIT HERE"))
+    (let [mock-is-terminal?        (fn [{:keys [board]}]
+                                       (reduce (fn [found-match? terminal-state]
+                                                   (or found-match? (= board terminal-state)))
+                                               false
+                                               [[2r110100101 2r001011010]
+                                                [2r011100101 2r100011010]
+                                                [2r011000101 2r000111010]
+                                                [2r110000101 2r000111010]]))
+          mock-check-win           (fn [{:keys [board]}]
+                                       (cond (= board [2r110100101 2r001011010])
+                                                 0
+                                             (= board [2r011100101 2r100011010])
+                                                 nil
+                                             (or (= board [2r110000101 2r000111010])
+                                                 (= board [2r011000101 2r000111010]))
+                                                 1
+                                             :else
+                                                 "SHOULD NOT HAVE HIT HERE"))
+          mock-valid-moves         (fn [{:keys [board]}]
+                                       (cond (= board [2r010100101 2r000011010])
+                                                 [2r001000000 2r100000000]
+                                             (= board [2r011000101 2r000011010])
+                                                 [2r000100000 2r100000000]
+                                             (= board [2r110000101 2r000011010])
+                                                 [2r000100000 2r001000000]
+                                             (= board [2r010100101 2r001011010])
+                                                 [2r100000000]
+                                             (= board [2r010100101 2r100011010])
+                                                 [2r001000000]
+                                             (= board [2r011000101 2r100011010])
+                                                 [2r000100000]
+                                             (= board [2r110000101 2r001011010])
+                                                 [2r000100000]
+                                             :else
+                                                 "SHOULD NOT HAVE HIT HERE"))
           pseudo-random            (fn [seed]
                                        (let [gen (java.util.Random. seed)]
                                            (fn [] (Math/abs (.nextInt gen)))))

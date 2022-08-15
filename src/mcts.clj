@@ -44,8 +44,8 @@
                     (recur (inc current-node) best-uct-node))))))
 
 (defn pick-unexplored-move [get-random-int get-valid-moves is-terminal? {:keys [state moves]}]
-    (when-not (is-terminal? (:board state))
-        (let [valid-moves    (get-valid-moves (state :board))
+    (when-not (is-terminal? state)
+        (let [valid-moves    (get-valid-moves state)
               explored-moves (map (fn [move] (move :move)) moves)]
             (when-let [unexplored-moves (not-empty (filter (fn [move]
                                                            (not (.contains explored-moves move)))
@@ -56,9 +56,9 @@
     (loop [current-node tree
            path         []]
         ; If we have arrived at a not fully explored node or a terminal state
-        (if (or (not= (count (get-valid-moves (get-in current-node [:state :board])))
+        (if (or (not= (count (get-valid-moves (current-node :state)))
                       (count (current-node :moves)))
-                (is-terminal? (get-in current-node [:state :board])))
+                (is-terminal? (current-node :state)))
             path
             ; Here we just grab (current-node :num-rollouts) instead of
             ; calculating it from the child moves - opposite of 'pick-best-move'
@@ -127,9 +127,9 @@
                 apply-move
                 state]
     (loop [current-state state]
-        (if (is-terminal? (:board current-state))
-            (check-win (:board current-state))
-            (let [moves     (valid-moves (:board current-state))
+        (if (is-terminal? current-state)
+            (check-win current-state)
+            (let [moves     (valid-moves current-state)
                   next-move (nth moves (mod (random-int) (count moves)))]
                 (recur (apply-move current-state next-move))))))
 

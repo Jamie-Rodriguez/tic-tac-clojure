@@ -40,21 +40,21 @@
     (is (= true  (is-full [2r001001001 2r110110110]))))
 
 (deftest check-win-test
-    (is (= 0   (check-win [2r001001001           0])))
-    (is (= 1   (check-win [0           2r111000000])))
-    (is (= nil (check-win [2r000001001 2r000000110]))))
+    (is (= 0   (check-win {:board [2r001001001           0]})))
+    (is (= 1   (check-win {:board [0           2r111000000]})))
+    (is (= nil (check-win {:board [2r000001001 2r000000110]}))))
 
 (deftest is-terminal-test
     ; Win for player 1
-    (is (= true (is-terminal? [2r001001101 2r100010010])))
+    (is (= true (is-terminal? {:board [2r001001101 2r100010010]})))
     ; Draw: full board
-    (is (= true (is-terminal? [2r001110011 2r110001100])))
+    (is (= true (is-terminal? {:board [2r001110011 2r110001100]})))
     ; Non-terminal
-    (is (= false (is-terminal? [2r000000001 2r000000000]))))
+    (is (= false (is-terminal? {:board [2r000000001 2r000000000]}))))
 
 (deftest get-valid-moves-list-test
-    (is (= [] (get-valid-moves-list [2r000011111 2r111100000])))
+    (is (= [] (get-valid-moves-list {:board [2r000011111 2r111100000]})))
     (is (= [2r000000010 2r000000100]
-           (get-valid-moves-list [2r010110001 2r101001000])))
+           (get-valid-moves-list {:board [2r010110001 2r101001000]})))
     ; Terminal states should return empty list
-    (is (= [] (get-valid-moves-list [2r001100001 2r010010010]))))
+    (is (= [] (get-valid-moves-list {:board [2r001100001 2r010010010]}))))

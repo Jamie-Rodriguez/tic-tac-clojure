@@ -49,33 +49,31 @@
      :player-to-move (mod (inc player-to-move) (count board))})
 
 (defn is-full [bitboards]
-    (zero? (bit-xor board-area
-                  (reduce bit-or bitboards))))
+    (zero? (bit-xor board-area (reduce bit-or bitboards))))
 
 ;  output |        meaning
 ; --------+------------------------
 ;   nil   | neither player has won
 ;    0    | player 1 wins
 ;    1    | player 2 wins
-(defn check-win [bitboards]
+(defn check-win [state]
     (loop [player 0
            win    nil]
-        (if (< player (count bitboards))
+        (if (< player (count (:board state)))
             (if (some (fn [win-direction]
                           (= win-direction
-                             (bit-and (nth bitboards player) win-direction)))
+                             (bit-and (nth (:board state) player) win-direction)))
                       three-in-a-row)
                 (recur (inc player) player)
                 (recur (inc player) win))
             win)))
 
-(defn is-terminal? [bitboards]
-    (or (is-full bitboards)
-        (nat-int? (check-win bitboards))))
+(defn is-terminal? [state]
+    (or (is-full (:board state)) (nat-int? (check-win state))))
 
-(defn get-valid-moves-list [bitboards]
-    (let [valid-moves-bitmask (get-valid-moves-bitmask bitboards)]
-        (if (and (pos-int? valid-moves-bitmask) (not (is-terminal? bitboards)))
+(defn get-valid-moves-list [state]
+    (let [valid-moves-bitmask (get-valid-moves-bitmask (:board state))]
+        (if (and (pos-int? valid-moves-bitmask) (not (is-terminal? state)))
             (separate-bitboard valid-moves-bitmask)
             [])))
 
@@ -104,6 +102,11 @@
               current-state     {:board current-bitboards :player-to-move player-to-move}
               move              ((nth agents player-to-move) current-state)
               new-bitboards     (apply-move current-bitboards player-to-move move)
+                                ; We don't actually use the new player-to-move
+                                ; as we calculate the current player each turn.
+                                ; Only including it for completeness' sake
+              new-state         {:board new-bitboards
+                                 :player-to-move (rem (inc turn-number) (count agents))}
               new-history       (conj history new-bitboards)
               win-status        (check-win new-bitboards)]
             (println (format "Turn #%d" turn-number))
@@ -115,7 +118,7 @@
             (newline)
             (print-board board-size width new-bitboards)
             (newline)
-            (if (is-terminal? new-bitboards)
+            (if (is-terminal? new-state)
                 new-history
                 (recur new-history)))))
 
@@ -128,9 +131,14 @@
               current-state     {:board current-bitboards :player-to-move player-to-move}
               move              ((nth agents player-to-move) current-state)
               new-bitboards     (apply-move current-bitboards player-to-move move)
+                                ; We don't actually use the new player-to-move
+                                ; as we calculate the current player each turn.
+                                ; Only including it for completeness' sake
+              new-state         {:board new-bitboards
+                                 :player-to-move (rem (inc turn-number) (count agents))}
               new-history       (conj history new-bitboards)
               win-status        (check-win new-bitboards)]
-            (if (is-terminal? new-bitboards)
+            (if (is-terminal? new-state)
                 win-status
                 (recur new-history)))))
 
@@ -167,5 +175,4 @@
     ;;                         (configure-mcts-agent 1 1.2 1000)]
     ;;                        1000))
     (println "Playing a game and printing visual info:")
-    (play-game-print-history)
-    )
+    (play-game-print-history))
