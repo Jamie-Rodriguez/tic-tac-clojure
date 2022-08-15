@@ -2,7 +2,7 @@ This is a game engine I've written for _tic-tac-toe_ AKA _noughts & crosses_ in 
 
 I created this for two reasons:
 1. To learn the modern, in-built Clojure development ecosystem, specifically using *CLI + Deps* with unit testing.
-2. To use this engine/environment in the future to experiment with reinforcement learning agents.
+2. To use this engine/environment to experiment with reinforcement learning agents.
 
 
 Usage
