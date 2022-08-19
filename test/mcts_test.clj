@@ -157,11 +157,11 @@
                                }
                                {
                                 :move 2r001000000
-                                ;:state {:board [2r011000101 2r000011010]
-                                ;        :player-to-move 1}
+                                :state {:board [2r011000101 2r000011010]
+                                        :player-to-move 1}
                                 :num-rollouts 1
                                 :score 1
-                                ;:moves []
+                                :moves []
                                }
                                {
                                 ;:move 2r100000000
@@ -170,8 +170,7 @@
                                 :num-rollouts 1
                                 :score 1
                                 ;:moves []
-                               }
-                              ]))))
+                               }]))))
         ; Test case: all three moves have been expanded for root,
         ; with differing statistics
         ; Select move with highest UCT value
@@ -193,11 +192,11 @@
                                }
                                {
                                 :move 2r001000000
-                                ;:state {:board [2r011000101 2r000011010]
-                                ;        :player-to-move 1}
+                                :state {:board [2r011000101 2r000011010]
+                                        :player-to-move 1}
                                 :num-rollouts 2
                                 :score 2
-                                ;:moves []
+                                :moves []
                                }
                                {
                                 ;:move 2r100000000
@@ -229,8 +228,8 @@
                                }
                                {
                                 :move 2r001000000
-                                ;:state {:board [2r011000101 2r000011010]
-                                ;        :player-to-move 1}
+                                :state {:board [2r011000101 2r000011010]
+                                        :player-to-move 1}
                                 :num-rollouts 2
                                 :score 2
                                 ; Make stats of these two moves identical, to
@@ -251,11 +250,11 @@
                                         ; states for selection
                                         {
                                          :move 2r000100000
-                                         ;:state {:board [2r011000101 2r000111010]
-                                         ;        :player-to-move 0}
+                                         :state {:board [2r011000101 2r000111010]
+                                                 :player-to-move 0}
                                          :num-rollouts 1
                                          :score 0
-                                         ;:moves []
+                                         :moves []
                                         }]}
                                {
                                 ;:move 2r100000000
@@ -310,9 +309,9 @@
                                           :state {:board [2r101110010 2r010001101]
                                                   :player-to-move 1}
                                           :move 2r000100000
-                                          ;:num-rollouts 1
-                                          ;:score 0
-                                          ;:moves []
+                                          :num-rollouts 1
+                                          :score 0
+                                          :moves []
                                          }]
                                 }]
                        })))

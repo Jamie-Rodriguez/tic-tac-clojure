@@ -61,7 +61,7 @@
                 (is-terminal? (current-node :state)))
             path
             ; Here we just grab (current-node :num-rollouts) instead of
-            ; calculating it from the child moves - opposite of 'pick-best-move'
+            ; calculating it from the child moves
             ; If there is no possibility of (current-node :num-rollouts) being
             ; out of date, then it is better to do this
             (let [get-uct-value (partial uct exploration (current-node :num-rollouts))
@@ -116,9 +116,9 @@
                             ; filter() returns a lazy sequence
                :moves (conj (vec (filter (fn [n] (not= (:move n) (first path)))
                                          (get node :moves)))
-               (replace-node (find-next-node (first path) (get node :moves))
-                             (rest path)
-                             updated-node)))))
+                            (replace-node (find-next-node (first path) (get node :moves))
+                                          (rest path)
+                                          updated-node)))))
 
 (defn simulate [is-terminal?
                 check-win
@@ -176,6 +176,11 @@
                                 (backprop who-won?
                                           (rest path)
                                           (find-next-node (first path) (get new-node :moves))
+                                          ; Note: This is the *only* place in this MCTS code
+                                          ; that expects state to have a specific
+                                          ; keyword/property :player-to-move.
+                                          ; This is a safe assumption for turn-based games'
+                                          ; state
                                           (get-in node [:state :player-to-move])))))))
 
 (defn make-mcts-agent [exploration
@@ -251,8 +256,8 @@
                                                         most-visited))
                                            [(first (get tree :moves))]
                                            (rest (get tree :moves)))
-                      ; There is a possibility that multiple moves may have the same statistics,
-                      ; having the same number of rollouts.
+                      ; There is a possibility that multiple moves may have the same statistics;
+                      ; i.e. having the same number of rollouts.
                       ; Settle the tie-break
                       next-node (nth max-rollouts (mod (rand-int Integer/MAX_VALUE)
                                                        (count max-rollouts)))]
